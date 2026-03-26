@@ -1,0 +1,2 @@
+cd C:\Lang\AEGIS\frontend && npm install && npm run dev
+cd C:\Lang\AEGIS\backend && pip install -r requirements.txt && python main.py
