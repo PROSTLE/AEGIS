@@ -1,2 +1,48 @@
-/* pages.css — styles now handled via inline styles and design system (styles/index.css) */
-/* This file intentionally left minimal to avoid conflicts */
+/* =============================================
+   AEGIS – Page Compatibility Layer
+   Maps old CSS variables to new Sovereign Engine tokens
+   ============================================= */
+
+:root {
+  /* Old → New color mapping */
+  --bg-primary: var(--bg-background);
+  --bg-secondary: var(--bg-surface-container);
+  --bg-card: var(--bg-surface-container-low);
+  --bg-card-hover: var(--bg-surface-container-high);
+  --bg-glass: rgba(255, 255, 255, 0.04);
+  --bg-glass-hover: rgba(255, 255, 255, 0.07);
+
+  /* Old accent → New accent */
+  --accent-primary: var(--primary);
+  --accent-secondary: var(--secondary);
+  --accent-tertiary: var(--tertiary);
+  --accent-success: var(--secondary);
+  --accent-warning: #fbbf24;
+  --accent-danger: var(--error);
+  --accent-gold: #fbbf24;
+
+  /* Old gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-container));
+  --gradient-hero: linear-gradient(135deg, #0e0e0e 0%, #131313 50%, #0e0e0e 100%);
+  --gradient-card: linear-gradient(135deg, rgba(133,173,255,0.05), rgba(193,128,255,0.05));
+  --gradient-success: linear-gradient(135deg, var(--secondary), var(--secondary-dim));
+  --gradient-warning: linear-gradient(135deg, #fbbf24, var(--error));
+
+  /* Old text */
+  --text-primary: var(--on-surface);
+  --text-secondary: var(--on-surface-variant);
+  --text-muted: var(--outline);
+  --text-accent: var(--primary);
+
+  /* Old borders */
+  --border-color: rgba(255, 255, 255, 0.05);
+  --border-accent: rgba(133, 173, 255, 0.2);
+  --border-glow: rgba(133, 173, 255, 0.4);
+
+  /* Old shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+  --shadow-glow: var(--glow-primary);
+  --shadow-glow-strong: var(--glow-primary-strong);
+}

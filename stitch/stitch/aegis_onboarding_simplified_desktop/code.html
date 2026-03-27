@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sovereign Intelligence | Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error-container": "#ffa8a3",
+                        "surface-container": "#1a1919",
+                        "secondary-fixed-dim": "#58e7ab",
+                        "secondary-fixed": "#69f6b8",
+                        "on-secondary": "#005a3c",
+                        "inverse-primary": "#005bc4",
+                        "inverse-on-surface": "#565554",
+                        "surface-container-highest": "#262626",
+                        "surface-dim": "#0e0e0e",
+                        "surface-variant": "#262626",
+                        "surface-container-high": "#201f1f",
+                        "on-tertiary-fixed": "#270048",
+                        "on-primary-fixed-variant": "#002a62",
+                        "on-tertiary": "#33005b",
+                        "on-secondary-fixed": "#00452d",
+                        "error-dim": "#d7383b",
+                        "on-secondary-fixed-variant": "#006544",
+                        "on-primary-container": "#002150",
+                        "surface-tint": "#85adff",
+                        "on-background": "#ffffff",
+                        "primary-container": "#6e9fff",
+                        "background": "#0e0e0e",
+                        "surface-container-lowest": "#000000",
+                        "on-surface-variant": "#adaaaa",
+                        "on-surface": "#ffffff",
+                        "error-container": "#9f0519",
+                        "surface-bright": "#2c2c2c",
+                        "secondary-dim": "#58e7ab",
+                        "secondary": "#69f6b8",
+                        "outline-variant": "#494847",
+                        "tertiary-fixed-dim": "#c488ff",
+                        "on-primary": "#002c66",
+                        "primary-fixed-dim": "#5391ff",
+                        "primary": "#85adff",
+                        "on-primary-fixed": "#000000",
+                        "primary-fixed": "#6e9fff",
+                        "surface-container-low": "#131313",
+                        "secondary-container": "#006c49",
+                        "tertiary-dim": "#9c48ea",
+                        "surface": "#0e0e0e",
+                        "error": "#ff716c",
+                        "tertiary-container": "#af5cfe",
+                        "on-tertiary-fixed-variant": "#560094",
+                        "inverse-surface": "#fcf8f8",
+                        "tertiary": "#c180ff",
+                        "on-error": "#490006",
+                        "tertiary-fixed": "#ce9bff",
+                        "primary-dim": "#699cff",
+                        "outline": "#777575",
+                        "on-tertiary-container": "#000000",
+                        "on-secondary-container": "#e1ffec"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(38, 38, 38, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .hero-glow {
+            background: radial-gradient(circle at center, rgba(133, 173, 255, 0.08) 0%, rgba(14, 14, 14, 0) 70%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary min-h-screen flex flex-col items-center justify-center overflow-hidden">
+<!-- Ambient Background Elements -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tertiary/5 blur-[120px] rounded-full"></div>
+<div class="absolute inset-0 hero-glow"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 w-full max-w-4xl px-8 flex flex-col items-center text-center">
+<!-- Logo Section -->
+<div class="mb-12 flex flex-col items-center group">
+<div class="w-16 h-16 bg-surface-container-highest rounded-xl flex items-center justify-center mb-4 transition-transform duration-500 group-hover:scale-110">
+<span class="material-symbols-outlined text-4xl text-primary" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+</div>
+<h2 class="font-headline font-extrabold text-2xl tracking-tighter text-white">AEGIS</h2>
+</div>
+<!-- Headline Content -->
+<div class="space-y-6 mb-12">
+<h1 class="font-headline font-extrabold text-7xl md:text-8xl tracking-tight text-white leading-[1.1]">
+                Don't Launch <span class="text-primary">Blind.</span>
+</h1>
+<p class="font-body text-on-surface-variant text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed">
+                AI-powered terrain intelligence for the Indian startup ecosystem.
+            </p>
+</div>
+<!-- AI Guide Tooltip -->
+<div class="mb-16">
+<div class="glass-card inline-flex items-center gap-4 px-6 py-4 rounded-xl border border-tertiary/20 shadow-[0_0_30px_rgba(193,128,255,0.1)]">
+<div class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-xl" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="text-left">
+<p class="font-label text-tertiary text-xs uppercase tracking-widest font-bold">AI Guide</p>
+<p class="font-body text-white text-sm">Hey! Not sure where to start? Let's explore India's top startup cities first.</p>
+</div>
+<div class="ml-4">
+<span class="material-symbols-outlined text-on-surface-variant text-sm cursor-pointer hover:text-white transition-colors">close</span>
+</div>
+</div>
+</div>
+<!-- Actions Cluster -->
+<div class="flex flex-col md:flex-row items-center gap-6 w-full max-w-2xl">
+<button class="w-full group relative overflow-hidden bg-gradient-to-r from-primary to-primary-container text-on-primary py-5 px-10 rounded-full font-label font-bold text-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20">
+<span class="relative z-10 flex items-center justify-center gap-3">
+                    Analyze a Startup Plan
+                    <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+</span>
+</button>
+<button class="w-full border border-outline-variant bg-white/5 backdrop-blur-md text-white py-5 px-10 rounded-full font-label font-bold text-lg transition-all duration-300 hover:bg-white/10 hover:border-white/30 active:scale-95">
+                Explore the Platform
+            </button>
+</div>
+<!-- Secondary Footnote Data -->
+<div class="mt-20 flex flex-wrap justify-center gap-12">
+<div class="flex flex-col items-center">
+<p class="font-label text-primary font-bold text-2xl">45k+</p>
+<p class="font-label text-on-surface-variant text-[10px] uppercase tracking-[0.2em]">Verified Startups</p>
+</div>
+<div class="flex flex-col items-center">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<p class="font-label text-secondary font-bold text-2xl">Live</p>
+</div>
+<p class="font-label text-on-surface-variant text-[10px] uppercase tracking-[0.2em]">Real-time Market Data</p>
+</div>
+<div class="flex flex-col items-center">
+<p class="font-label text-tertiary font-bold text-2xl">98%</p>
+<p class="font-label text-on-surface-variant text-[10px] uppercase tracking-[0.2em]">Predictive Accuracy</p>
+</div>
+</div>
+</main>
+<!-- Footer Decoration -->
+<footer class="fixed bottom-0 w-full p-8 flex justify-between items-center z-10">
+<div class="font-label text-[10px] text-on-surface-variant uppercase tracking-[0.3em]">
+            © 2024 Sovereign Intelligence Engine
+        </div>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-on-surface-variant text-xl hover:text-primary cursor-pointer transition-colors">public</span>
+<span class="material-symbols-outlined text-on-surface-variant text-xl hover:text-primary cursor-pointer transition-colors">hub</span>
+<span class="material-symbols-outlined text-on-surface-variant text-xl hover:text-primary cursor-pointer transition-colors">database</span>
+</div>
+</footer>
+<!-- Imagery Placeholder with Detailed Prompts (Invisible/Structural) -->
+<div class="hidden">
+<div class="bg-cover" data-alt="abstract cybernetic grid overlaying a dark blue topographical map of india with glowing data nodes and neural network lines"></div>
+<div class="bg-cover" data-alt="minimalist 3d render of a sleek metallic shield icon floating in a dark void with soft blue rim lighting and digital grain"></div>
+</div>
+</body></html>

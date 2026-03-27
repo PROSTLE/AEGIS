@@ -1,0 +1,714 @@
+================================================================================
+AEGIS — INDIA STARTUP TERRAIN INTELLIGENCE PLATFORM
+Complete Project Brief | SELECT Makeathon '26
+Team: The Powerpuffs | VIT Vellore
+Domain: Fintech + AI/ML + Urban Intelligence
+================================================================================
+
+"Pick your city. Know your odds. Launch smarter."
+
+--------------------------------------------------------------------------------
+SECTION 1: PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+
+AEGIS is an AI-powered startup terrain intelligence platform built for India.
+It helps founders decide where and how to launch their startup by combining
+ecosystem data, workforce intelligence, logistics viability, verified market
+activity, and forward-looking demand forecasts into one unified platform.
+
+Unlike tools such as Tracxn or Crunchbase that show what exists, AEGIS predicts
+what will survive — and explains exactly why.
+
+TAGLINE:
+Select an Indian city + enter your startup type and idea -> get a full Terrain
+Report: ecosystem health, workforce density, logistics viability, competitor
+landscape, investor match, and a Launch Readiness Score — powered entirely by
+free, real Indian data.
+
+--------------------------------------------------------------------------------
+SECTION 2: THE PROBLEM
+--------------------------------------------------------------------------------
+
+Every year, thousands of Indian founders pick their startup city based on
+instinct — without understanding whether their sector has traction there,
+whether the local workforce matches their needs, or whether the logistics
+infrastructure can support their model at scale.
+
+On the investor side, VCs are missing Tier-2 city deal flow — overlooking
+Pune's SaaS boom or Coimbatore's manufacturing tech wave entirely.
+
+No single platform combines:
+  - Ecosystem data
+  - Workforce availability
+  - Logistics viability
+  - Verified activity
+  - Demand forecasting
+...for Indian cities.
+
+--------------------------------------------------------------------------------
+SECTION 3: SYSTEM ARCHITECTURE
+--------------------------------------------------------------------------------
+
+AEGIS is built on a Python/FastAPI backend with a React frontend. All data
+sources are free and publicly accessible. Three primary layers:
+
+  Layer 1: Data Ingestion
+  Layer 2: AI Engine
+  Layer 3: User-Facing Dashboard
+
+FULL TECH STACK:
+  Backend:   Python 3.11 + FastAPI + PostgreSQL + Redis (score caching)
+  Frontend:  React + D3.js (India heatmap) + Recharts (trend graphs)
+  AI/ML:     scikit-learn, XGBoost, HuggingFace FinBERT, Facebook Prophet,
+             scikit-survival
+  Scraping:  BeautifulSoup + Scrapy + Pandas
+  LLM:       Gemini 1.5 Flash API (free tier — 1,500 requests/day, no card)
+  Deploy:    Docker + Render free tier or Railway
+
+DATA FLOW:
+  Data Ingestion  -> Scrapers, API clients, nightly cron jobs -> PostgreSQL
+  Storage         -> PostgreSQL (structured) + Redis (cached scores, 24h TTL)
+  AI Engine       -> 5 ML models + RAG pipeline for AI Advisor
+  API Layer       -> FastAPI REST endpoints, one per feature module
+  Frontend        -> React dashboard, D3 India map, chart components, advisor
+
+--------------------------------------------------------------------------------
+SECTION 4: CORE FEATURES (ORIGINAL 8)
+--------------------------------------------------------------------------------
+
+FEATURE 1: CITY STARTUP HEATMAP
+---------------------------------
+An interactive India map where users click any city to view its startup
+ecosystem health score. Cities are color-coded from green (underserved
+opportunity) to red (saturated).
+
+What it shows:
+  - Ecosystem Score (0-100) per city — computed from startup density, funding
+    activity, talent index, and cost of living
+  - Tier-1 vs Tier-2 breakdown: Bangalore, Mumbai, Delhi vs Pune, Ahmedabad,
+    Coimbatore, Jaipur, Kochi
+  - Sector filter: view heatmap for Fintech, Agritech, D2C, Manufacturing, SaaS
+  - Trend indicator: city startup activity growing or declining vs last year
+
+How to build:
+  - D3.js with GeoJSON map of India (free from datameet.org/India-maps)
+  - Color scale: D3 scaleQuantize mapping 0-100 to green-to-red ramp
+  - City scores computed nightly by backend, cached in Redis
+  - Endpoint: /api/city/{city_id}
+
+Free Data Sources:
+  - Active startups per city + sector: DPIIT Startup India (startupindia.gov.in)
+  - Funding events: Crunchbase Basic free tier + VCCircle public deal pages
+  - Talent density: NASSCOM city report PDFs + AISHE district-level data
+  - Cost of living: Numbeo free API (/api/v3/city_prices, no auth)
+  - City GeoJSON: datameet.org/India-maps (GitHub, Creative Commons)
+
+
+FEATURE 2: STARTUP SURVIVAL PREDICTOR
+---------------------------------------
+An ML model scoring any startup's probability of surviving 3 years, based on
+historical Indian startup outcomes. Core AI differentiator of AEGIS.
+
+What it outputs:
+  - Survival Probability Score (0-100%)
+  - Top 3 risk factors specific to this startup profile
+  - Top 3 strength signals that improve odds
+  - Comparable startups that failed in the same space — and why
+
+How to build:
+  - Model: XGBoost binary classifier trained on Indian startup outcomes
+  - Features: city, sector, founding team size, funding stage, team background,
+    market timing score
+  - Label: Active on MCA portal after 3 years = survived; Struck Off = failed
+  - Training data: 2,000+ Indian startup profiles from Tracxn public pages
+  - 5-fold cross-validation — target AUC above 0.72
+  - Explainability: SHAP values for risk/strength factors per prediction
+  - Endpoint: POST /api/predict/survival
+
+Free Data Sources:
+  - Startup outcomes: MCA21 portal (free status lookup, no auth)
+  - Training profiles: Tracxn public pages (BeautifulSoup, no login)
+  - Sector classification: DPIIT Startup India CSV
+  - Dates: MCA21 + DPIIT dataset
+
+
+FEATURE 3: SUPPLY CHAIN & LOGISTICS STRESS TEST
+--------------------------------------------------
+Given a startup type and city, AEGIS scores whether the city's infrastructure
+can support this business at scale. No competitor has this feature.
+
+What it scores:
+  - Last-mile delivery density (Delhivery, Shadowfax pincode serviceability)
+  - Supplier proximity: distance to relevant raw material clusters
+  - Port/rail/highway access (for hardware, D2C, export-facing startups)
+  - Cold chain availability (food, pharma, agri startups)
+  - Monthly logistics cost index vs Bangalore baseline
+
+How to build:
+  - City logistics profile table in PostgreSQL with pre-computed sub-scores
+  - Highway/port proximity: haversine distance from city center via OpenStreetMap
+  - Supplier clusters: MSME ministry cluster database with city GPS coordinates
+  - Courier coverage: scrape Delhivery and Shadowfax pincode serviceability pages
+  - Normalize all sub-scores to 0-100, compute weighted average as final score
+
+Free Data Sources:
+  - Road/highway network: OpenStreetMap Overpass API (free REST, GeoJSON)
+  - Port locations: data.gov.in (Ministry of Ports open dataset)
+  - MSME clusters: dcmsme.gov.in (free, scrapable)
+  - Cold chain: nccd.gov.in (National Centre for Cold Chain Development)
+  - Railway data: OpenRailwayMap API (free, OSM-based, full India coverage)
+  - Pincode geography: bharatpin on GitHub (MIT license)
+
+
+FEATURE 4: WORKFORCE INTELLIGENCE ENGINE
+------------------------------------------
+User selects startup type and AEGIS shows exactly what workforce they need
+and whether it exists in the chosen city, with wage indices.
+
+Startup Type -> Workforce Profile mapping:
+  Factory/Manufacturing -> ITI diploma holders, machine operators, electricians
+  Office/Corporate      -> MBA grads, CS/IT engineers, finance and HR
+  D2C/Retail            -> Sales reps, delivery ops, customer support
+  Tech Startup          -> Software engineers, data scientists, DevOps
+  Food/Agri             -> Agricultural workers, food technologists, cold chain
+
+What it outputs:
+  - Workforce Score 0-100
+  - Estimated average wage per role per city
+  - Top 3 hiring sources for that city
+  - Endpoint: GET /api/workforce/{city}/{startup_type}
+
+Free Data Sources:
+  - City-wise employment: Census of India 2011 (B-series, censusindia.gov.in)
+  - ITI/vocational output: NCVT MIS portal (ncvtmis.gov.in)
+  - Graduate output: AISHE (education.gov.in, free annual data)
+  - Wages: Labour Bureau wage rate survey reports (data.gov.in)
+  - Employment registrations: State labour department portals
+
+
+FEATURE 5: LOCATION & LAND INTELLIGENCE
+-----------------------------------------
+Recommends best zones to operate in for a given startup type and city, with
+real estate price indices, zoning legality checks, proximity scores.
+
+What it outputs:
+  - Top 2-3 recommended zones/areas within the city
+  - Average commercial/industrial real estate rate in Rs/sqft per zone
+  - Zoning legality check (industrial vs commercial vs residential)
+  - Proximity score: industrial estate, talent cluster, highway, supplier base
+
+How to build:
+  - City zone database in PostgreSQL: industrial estates, IT parks, hubs
+  - OpenStreetMap Overpass API for zone polygons and POI data
+  - Real estate rates: scrape 99acres.com and MagicBricks, compute avg Rs/sqft
+  - Zoning data: parse municipal corporation master plan PDFs (pdfplumber)
+  - Weighted matrix scoring per startup type
+
+Free Data Sources:
+  - Industrial estates: SIDBI MSME cluster portal + state industrial corp sites
+  - IT parks/SEZ: SEZ India portal (sezindia.gov.in)
+  - Real estate proxy: 99acres.com + MagicBricks public listings
+  - Zone data: Municipal corporation master plan PDFs
+  - Area boundaries/POI: OpenStreetMap Overpass API
+
+
+FEATURE 6: VERIFIED STARTUP ACTIVITY COUNTER
+----------------------------------------------
+Startup numbers cross-verified via MCA and GST filings. Shows active companies,
+closure rates, and a Crowding Index per sector+city combination.
+
+What it outputs:
+  - Active company count in sector + city, verified against MCA
+  - Closure rate in last 2 years: how many shut down and primary reason
+  - Crowding Index: gold rush (low competition, high growth) vs graveyard
+  - Notable survivors: top 3 still-active startups in this space and city
+
+Crowding Index formula:
+  (active_count / city_benchmark_capacity) * (1 + closure_rate_weight)
+
+How to build:
+  - Primary source: DPIIT Startup India recognition list (free CSV)
+  - Cross-verify against MCA21 company status API (batch overnight)
+  - Group by NIC sector code + city, compute active/closure counts
+  - Cache in Redis with 24-hour TTL (MCA lookups are slow)
+
+Free Data Sources:
+  - Recognized startups: DPIIT Startup India (startupindia.gov.in)
+  - Company status: MCA21 portal (free lookup by CIN)
+  - GST data: gst.gov.in statistics (state-wise sector aggregate)
+  - Sector codes: MCA sector code mapping PDF
+
+
+FEATURE 7: DEMAND FORECAST & COMPANY LIFESPAN PREDICTOR
+---------------------------------------------------------
+A 5-year forward demand graph for any sector + city, plus predicted company
+lifespan based on historical Indian startup survival curves.
+
+Demand Forecast — what it shows:
+  - 5-year projected demand growth curve for the sector in that city
+  - Seasonal volatility overlay (peak/crash periods in India annually)
+  - Macro signal indicators: government policy direction for the sector
+  - Confidence bands: upper and lower forecast bounds
+
+Company Lifespan Prediction — what it shows:
+  - Median survival time for startups with similar profile
+  - Survival curve: probability of operating at Year 1, 2, 3, 5
+  - Key mortality events: what typically kills startups at each stage
+
+How to build:
+  - Demand model: Facebook Prophet (handles seasonality + Indian holidays)
+  - Input: monthly GST collections by sector and state (2017-2024)
+  - Lifespan model: Kaplan-Meier survival analysis (scikit-survival)
+  - Event definition: startup closure = Struck Off on MCA portal
+  - Time variable: months from MCA incorporation to closure date
+  - Stratify by sector and city tier
+  - Endpoints: GET /api/forecast/{sector}/{city}
+               GET /api/lifespan/{sector}/{city_tier}
+
+Free Data Sources:
+  - GST sector collections: gst.gov.in statistics (monthly, 2017-present)
+  - Google Trends: pytrends Python library (free, no auth)
+  - Policy announcements: PIB RSS feed (pib.gov.in/rss.aspx)
+  - Startup dates: MCA21 + DPIIT dataset
+  - Seasonal indices: RBI Handbook of Statistics (rbi.org.in)
+
+
+FEATURE 8: INVESTOR-FOUNDER MATCHMAKING ENGINE
+------------------------------------------------
+An AI compatibility scorer — not a directory. Founders fill a startup profile
+and AEGIS ranks investors by match score, explaining why each is a fit or not.
+
+What it outputs:
+  - Ranked list of 10-15 investors with compatibility score (0-100%) each
+  - Match reasoning per investor: sector fit, city preference, cheque size
+  - Overexposure flag: investors already overweight in this sector
+  - Warm path suggestions: mutual portfolio companies for introductions
+  - Stage fit indicator: seed vs pre-seed vs Series A
+
+How to build:
+  - Investor database: 300-500 Indian angels and VCs
+  - Scrape AngelList India, LetsVenture, VC firm websites
+  - Extract: portfolio sectors, preferred cities, cheque size, stage, patterns
+  - Matching: cosine similarity between founder and investor profile vectors
+  - Profile vectors: TF-IDF over sector tags + city preferences + stage labels
+  - Endpoint: POST /api/match/investors
+
+Free Data Sources:
+  - VC/angel profiles: AngelList India (angel.co/india, public pages)
+  - VC portfolios: Individual VC websites (Blume, Stellaris, Kalaari, Omnivore)
+  - Funding rounds: Tracxn free tier + Entrackr + VCCircle public pages
+  - Investor preferences: Crunchbase Basic (200 lookups/month)
+
+--------------------------------------------------------------------------------
+SECTION 5: AI ADVISOR — "SHOULD I START HERE?"
+--------------------------------------------------------------------------------
+
+The conversational layer tying all 8 features together. A founder types their
+idea and city, and the AI Advisor synthesizes all feature outputs into one
+narrative response with a Launch Readiness Score and concrete next steps.
+
+What it outputs:
+  - Launch Readiness Score (0-100): composite of all 8 feature module scores
+  - Narrative summary: 2-3 paragraph plain-English explanation with data points
+  - Top 3 things going for you in this city for this idea
+  - Top 3 things that could kill you — with specific mitigation suggestions
+  - Relocate or stay?: if score below 60, suggests top 3 alternate Indian cities
+
+RAG Architecture (entirely free to build):
+  Step 1 — Query parsing: extract city + sector + startup type (regex + keywords)
+  Step 2 — Data retrieval: fetch scores from all 8 feature modules via FastAPI
+  Step 3 — Context assembly: build structured prompt string with all scores
+  Step 4 — LLM call: send context to Gemini 1.5 Flash API for narrative
+  Step 5 — Score computation: Launch Readiness Score computed deterministically
+            from feature scores (no LLM used, ensuring consistency)
+
+Free LLM Options:
+  - Gemini 1.5 Flash: aistudio.google.com (1,500 req/day, 1M tokens/day, no card)
+  - Groq (Llama 3 8B): console.groq.com (14,400 req/day, very fast)
+  - Ollama (local): ollama.ai (run Llama 3 locally, zero cost, works offline)
+
+LAUNCH READINESS SCORE FORMULA:
+  Feature Component                    Weight
+  ----------------------------------------
+  Ecosystem Score (city heatmap)        20%
+  Startup Survival Predictor            20%
+  Logistics / Supply Chain Score        15%
+  Workforce Availability Score          15%
+  Demand Forecast Score (5-year)        15%
+  Verified Activity / Crowding Index    10%
+  Investor Availability Score            5%
+  ----------------------------------------
+  Total                                100%
+
+--------------------------------------------------------------------------------
+SECTION 6: NEW ADDITIONS (POST-ORIGINAL CONCEPT)
+--------------------------------------------------------------------------------
+
+ADDITION 1: REVERSE PITCH — CITY PLANNER DASHBOARD
+----------------------------------------------------
+A toggle that lets government officials see why startups are leaving their city
+or what specific infrastructure is missing to attract a certain sector.
+
+Concept:
+  - Toggle view: Founder Mode <-> City Planner Mode
+  - City Planner view shows: "Kochi is losing food-tech startups because cold
+    chain infrastructure scores 31/100 — here are the 3 specific gaps"
+  - Generates a policy brief in seconds from AEGIS's existing data signals
+
+Why it works:
+  - Reframes AEGIS from B2C to B2G platform — dramatically expands market story
+  - Demonstrates data isn't just for picking a winner, but for building ecosystems
+  - Government officials become a second user type alongside founders and VCs
+  - Judges see genuine public-sector utility from a student project
+
+Implementation:
+  - Same backend data, new frontend view rendering deficits instead of scores
+  - "What's missing" computed by inverting the scoring logic per feature module
+  - No new data sources required — purely a UI/framing shift
+
+
+ADDITION 2: REAL-TIME REGULATORY PULSE (PIB RSS FEED)
+------------------------------------------------------
+A "Live Check" layer using the PIB RSS feed to prove the app is alive and not
+just a static database.
+
+Concept:
+  - Small badge on relevant searches showing recent policy announcements
+  - Example: User searches "EV Startups" -> badge shows: "New FAME-III subsidy
+    announced 48 hours ago — Impact: High for this sector"
+
+Enhanced version (recommended):
+  - Make the badge actionable: "This raises your Launch Readiness Score from
+    74 -> 81 — here's why"
+  - Connects the live feed directly to the core scoring engine
+  - Proves the system is adaptive, not a fixed snapshot
+
+Implementation:
+  - Parse PIB RSS feed (pib.gov.in/rss.aspx) — free, real-time
+  - NLP keyword matching against user's sector/city query
+  - Classify policy impact as: High / Medium / Low / Neutral
+  - If High impact: trigger score recalculation with policy weight overlay
+  - Display badge inline on the dashboard next to the relevant feature module
+
+
+ADDITION 3: PEER / COMPETITOR ANALYSIS
+----------------------------------------
+Founders can see who their real competition is and how to outperform them,
+with AI-generated strategic suggestions.
+
+Concept:
+  - Show active competitors in same sector + city, pulled from Feature 6 data
+  - AI compares your startup profile against each competitor's known signals
+  - Suggests concrete moves: zone changes, workforce strategies, investor pivots
+
+AEGIS-specific angle:
+  - "Competitor X is in Sitapura Industrial Area — you're targeting Mansarovar.
+    Switching zones improves your logistics score by 18 points."
+  - "Competitor Y raised from an ESG fund you haven't approached — here are 3
+    matching investors from your Investor Match list."
+
+Implementation:
+  - Pull competitor list from Verified Activity Counter (Feature 6) data
+  - Build competitor profile vectors from same signals as survival predictor
+  - Compute delta between user's profile and each competitor's profile
+  - Feed delta into Gemini API: "Given this gap, suggest 3 strategic moves"
+  - Endpoint: POST /api/competitor/analysis
+
+
+ADDITION 4: COLLABORATIVE WAR ROOM — SHARE TERRAIN REPORT
+-----------------------------------------------------------
+A "Share Terrain Report" button that generates a unique URL for investors or
+co-founders, moving AEGIS from a lookup tool to a workflow tool.
+
+Concept:
+  - One-click generation of a shareable, password-protected Terrain Report URL
+  - Recipient sees a read-only snapshot of the full Launch Readiness Report
+  - Useful for: founders sharing with co-founders, pitching to investors,
+    applying to accelerators
+
+Implementation (hackathon-scope version):
+  - Generate a UUID-based URL on report completion: /report/{uuid}
+  - Store report snapshot in PostgreSQL with expiry (7 days default)
+  - Optional: simple 4-digit PIN protection (don't overbuild for makeathon)
+  - Frontend renders read-only version of dashboard from stored JSON snapshot
+  - "Copy Link" button — that's all that's needed for the demo
+
+Why it works:
+  - Shifts the product from solo-use to collaborative workflow
+  - Investors receiving a shared report become a second acquisition channel
+  - Easy to demo: show the URL, open it in incognito, it loads
+
+--------------------------------------------------------------------------------
+SECTION 7: IOT HARDWARE — LOGISTICS GROUND-TRUTH SENSOR
+--------------------------------------------------------------------------------
+
+THE CORE IDEA
+--------------
+AEGIS's logistics scores are currently computed from static sources —
+OpenStreetMap data, Delhivery pincode pages, MSME cluster distances. These are
+proxies. They tell you theoretically how good logistics should be, not how good
+it actually is on the ground.
+
+The IoT layer flips this. A cheap tracker attached to a vehicle makes a real
+delivery run through a city and reports back: actual travel time, actual stops,
+actual route deviation from optimal path.
+
+The delta between prediction and ground truth is the hardware's value:
+"We predicted 45 minutes for last-mile delivery in this zone.
+ Ground truth: 67 minutes. Logistics score adjusted downward."
+
+THE PITCH LINE:
+"AEGIS is the only startup intelligence platform that self-corrects its
+logistics scores using real delivery ground truth — not just government data.
+Our sensor network turns every delivery run into an AEGIS data point."
+
+
+HARDWARE COMPONENTS
+--------------------
+Component               Purpose                              Approx Cost
+---------------------------------------------------------------------------
+SIM800L GSM/GPRS        Sends GPS data over mobile network   Rs 280-350
+NEO-6M GPS Module       Gets live latitude/longitude         Rs 180-220
+Arduino Uno or ESP32    Microcontroller, reads GPS/GSM       Rs 300-450
+18650 Li-ion Battery    Powers unit independently            Rs 120-150
+TP4056 Charging Module  Safe battery charging via USB        Rs 30-50
+Small enclosure/box     Weatherproofing                      Rs 50-80
+SIM card (Airtel/Jio)   Data connection for SIM800L          Rs 10 + recharge
+---------------------------------------------------------------------------
+TOTAL PER UNIT: ~Rs 1,000-1,300. Build 2 units for redundancy.
+
+CRITICAL NOTE on SIM800L:
+  Runs on 3.7-4.2V, pulls up to 2A peak during GSM transmission.
+  Power directly from Li-ion battery through TP4056.
+  Do NOT power from Arduino's 3.3V pin — this is the most common failure point.
+
+
+FIRMWARE LOGIC (what the device does)
+--------------------------------------
+Every 30 seconds:
+  1. Read GPS coordinates from NEO-6M
+  2. Read timestamp
+  3. Calculate speed (distance from last point / time elapsed)
+  4. Package as JSON payload
+  5. Send HTTP POST to FastAPI backend via SIM800L
+  6. Log to onboard SD card as backup (optional)
+
+JSON payload format:
+  {
+    "device_id": "AEGIS-TRACKER-01",
+    "city": "jaipur",
+    "lat": 26.9124,
+    "lng": 75.7873,
+    "speed_kmh": 12.4,
+    "timestamp": "2026-03-26T10:43:00Z",
+    "zone": "sitapura_industrial"
+  }
+
+Recommended firmware library:
+  vshymanskyy/TinyGSM — handles SIM800L AT commands, saves significant time
+
+
+BACKEND INTEGRATION
+--------------------
+New PostgreSQL table:
+  CREATE TABLE ground_truth_readings (
+    id SERIAL PRIMARY KEY,
+    device_id VARCHAR(50),
+    city VARCHAR(100),
+    zone VARCHAR(100),
+    lat DECIMAL(9,6),
+    lng DECIMAL(9,6),
+    speed_kmh DECIMAL(5,2),
+    timestamp TIMESTAMPTZ,
+    trip_id VARCHAR(50)
+  );
+
+New FastAPI endpoint (device POSTs here):
+  POST /api/tracker/ingest
+    -> Store raw reading in DB
+    -> On trip completion: compute actual delivery metrics
+    -> Compare against AEGIS predicted logistics score for this city/zone
+    -> Compute ground truth adjustment factor
+    -> Update logistics score with real-world weight overlay
+    -> Return: {status, adjustment_applied}
+
+Trip metrics computed per completed run:
+  - Average speed through the zone
+  - Stop frequency (proxy for traffic/signal density)
+  - Route efficiency (actual distance vs straight-line distance)
+  - Time-of-day congestion factor
+
+These feed into Feature 3's scoring formula as a "Ground Truth Weight" that
+partially overrides static OpenStreetMap estimates.
+
+Live query endpoint:
+  GET /api/tracker/live/{city}  -> used by frontend for the live badge
+
+
+FRONTEND — WHAT THE DASHBOARD SHOWS
+-------------------------------------
+A "Live Ground Truth" badge appears next to any city/zone with tracker data:
+
+  Predicted logistics score (static data):    71/100
+  Ground truth adjustment:                    -9 points
+    (real delivery times 34% slower than modeled)
+  Adjusted final score:                       62/100
+  Based on: 3 trips, 47 data points, updated 2 hours ago
+
+  [Small map showing actual GPS trace overlaid on city zone]
+
+This adjusted score feeds directly into the Launch Readiness Score computation.
+The hardware changes the output a founder sees — that's the narrative connection.
+
+
+DEMO EXECUTION AT THE MAKEATHON
+---------------------------------
+BEFORE THE EVENT (2-3 days prior):
+  - Drive tracker around VIT campus / Vellore city for 4-5 trips
+  - Label the zone as "sitapura_jaipur" in device config
+    (judges verify the pipeline works, not the geography)
+  - You'll have 60-100 real GPS readings in your DB before the presentation
+
+DURING THE DEMO:
+  - Have second tracker unit powered ON and sitting on the table, transmitting
+  - Show live database receiving pings in real time
+  - Simple terminal tail or a "Live Feed" panel showing incoming coordinates
+    every 30 seconds proves hardware is real and working, not pre-recorded
+
+Demo script for the hardware segment:
+  "Every logistics score in AEGIS is currently backed by static government data.
+   But we built something no other platform has — a ground-truth layer. This
+   device was running delivery simulations for the past three days. Watch what
+   happens to Jaipur's logistics score when I pull in that real-world data."
+   [Show score adjusting live on dashboard]
+
+
+TEAM SPLIT FOR HARDWARE EXECUTION
+-----------------------------------
+Person 1 — Hardware (6-8 hours):
+  Wiring, firmware, GPS lock, SIM800L HTTP POST working
+  Hardest part: SIM800L AT command setup — use TinyGSM library
+
+Person 2 — Backend Ingestion (3-4 hours):
+  /api/tracker/ingest route
+  DB table creation
+  Score adjustment computation logic (Python)
+
+Person 3 — Frontend Badge (2-3 hours):
+  Live Ground Truth UI component on logistics panel
+  Polling call to /api/tracker/live/{city} endpoint
+  GPS trace overlay on zone map
+
+All three work in parallel — they connect only at the API boundary.
+
+--------------------------------------------------------------------------------
+SECTION 8: AI ADVISOR DEMO FLOW (4 MINUTES)
+--------------------------------------------------------------------------------
+
+00:00  Open AEGIS. India heatmap loads. Cities glow green to red by score.
+00:40  Click Jaipur. Sidebar: Fintech weak, Manufacturing strong, D2C emerging.
+01:10  Type: "I want to start a sustainable packaging factory in Jaipur."
+01:30  Workforce Report: 12,400 skilled workers. Avg wage Rs 13,800/month.
+01:50  Location Intel: Best zone = Sitapura Industrial Area. Rs 22/sqft. NH-48.
+02:10  Verified Activity: 47 similar companies active. 8 closed. Crowding: Low.
+02:30  Demand Forecast: 5-year chart, 28% CAGR for sustainable packaging (North).
+02:50  Launch Readiness Score: 74/100.
+       AI Advisor: "Strong workforce and logistics foundation. Weak investor
+       presence locally — consider pitching Mumbai-based ESG funds directly."
+03:20  Investor Match: 6 VCs shown. Top: Omnivore Partners (82%) — ESG focus.
+03:50  Pivot suggestion: Ahmedabad scores 81/100 for same idea. Side-by-side shown.
+
+[If hardware is being demoed, insert at 02:50]:
+       "And here — watch what happens when live ground-truth data from our IoT
+       tracker adjusts the logistics score in real time." [Score updates visually]
+
+--------------------------------------------------------------------------------
+SECTION 9: WHY AEGIS WINS
+--------------------------------------------------------------------------------
+
+What existing tools do             What AEGIS does differently
+--------------------------------------------------------------------------
+Show funded startups (Tracxn)      Predicts which will survive — SHAP explained
+Global data, India-agnostic        India-first, city-level down to Tier-2/3
+VCs use gut + Excel                8 data signals synthesized into one score
+Logistics ignored everywhere       Supply chain stress test in every report
+No workforce intelligence          Startup-type-specific workforce + wage index
+No forward-looking view            5-year demand forecast + lifespan curves
+Static investor directories        AI compatibility scoring + warm path intros
+Enterprise tools Rs 25,000+/month  100% free data, open source, zero licensing
+No government utility              City Planner Dashboard for policy decisions
+No live data proof                 PIB RSS real-time regulatory pulse
+No competitor intelligence         AI-powered peer analysis and gap suggestions
+Solo lookup tool only              Shareable War Room for teams and investors
+Static logistics scoring only      IoT ground-truth sensor adjusts scores live
+
+--------------------------------------------------------------------------------
+SECTION 10: COMPLETE FREE DATA SOURCE REFERENCE
+--------------------------------------------------------------------------------
+
+Source                  What it provides                   How to access
+--------------------------------------------------------------------------
+data.gov.in             DPIIT startups, census, ports,     CSV/Excel download
+                        labour wage surveys
+startupindia.gov.in     Recognized startup DB (city,       Search + CSV export
+                        sector, stage, recognition)
+MCA21 (mca.gov.in)      Company active/struck-off status,  Free web lookup by
+                        incorporation date, directors       CIN or name
+gst.gov.in              Monthly GST collections by state   Public stats page,
+                        and sector from 2017-present       free Excel download
+OpenStreetMap           City boundaries, highways,         Free REST API, no
+Overpass API            railways, industrial zones, POIs   auth, GeoJSON output
+Numbeo API              Cost of living index per city      Free /api/v3/city_prices
+                        including all major Indian cities   no auth needed
+pytrends                Search interest over time for      Python library,
+(Google Trends)         any sector/keyword by region       free, no auth
+AngelList India         VC and angel profiles, portfolio   Public pages,
+                        companies, investment focus         BeautifulSoup scrape
+Crunchbase Basic        Startup profiles, funding rounds,  Free tier: 200
+                        investor details                   searches/month
+AISHE                   Graduate output by district and    Free annual report
+(education.gov.in)      academic discipline                + district portal
+NCVT MIS                ITI trade-wise pass-out counts     Free public portal,
+(ncvtmis.gov.in)        by state                          no auth
+PIB RSS                 Government policy announcements    Free RSS feed:
+(pib.gov.in)            by ministry in real time          pib.gov.in/rss.aspx
+99acres + MagicBricks   Commercial/industrial real estate  Scrape Rs/sqft
+                        listing prices per locality        averages, public
+dcmsme.gov.in           MSME industrial cluster directory  Free public directory,
+                        with GPS-ready city listings       scrapable
+datameet.org/India-maps India state/district GeoJSON for   GitHub, Creative
+                        D3.js map rendering               Commons, free
+Gemini 1.5 Flash API    LLM inference for AI Advisor       aistudio.google.com
+                        narrative generation               free tier, no card
+SIM800L + NEO-6M        Real-world last-mile delivery      IoT hardware unit,
+(IoT Hardware)          time data, route efficiency        Rs 1,000-1,300/unit
+
+--------------------------------------------------------------------------------
+SECTION 11: OVERALL ASSESSMENT NOTES
+--------------------------------------------------------------------------------
+
+STRENGTHS:
+  - Core insight is sharp and India-specific
+  - Free data source strategy is thorough and realistic
+  - 4-minute demo script is tight and uses specific numbers
+  - Each feature is independently valuable and also compounds the others
+  - Hardware addition creates a genuine technical differentiator
+  - City Planner Dashboard opens a second B2G market story
+
+AREAS TO WATCH:
+  - Investor matchmaking (Feature 8) may be noisy with cosine similarity on
+    300 scraped VC profiles — don't oversell prediction accuracy
+  - Hardware demo requires prep work 2-3 days before the event — plan for this
+  - War Room (collaborative sharing) is lowest priority for makeathon demo;
+    implement last if time permits
+
+JUDGING DOMAIN FIT (Fintech + AI/ML + Urban Intelligence):
+  - All three domains are hit simultaneously
+  - Survival predictor (AI/ML) + Launch Readiness Score (Fintech intelligence) +
+    City Heatmap (Urban Intelligence) = clean domain alignment
+  - IoT ground-truth layer adds engineering credibility to AI claims
+
+================================================================================
+END OF DOCUMENT
+AEGIS — Built by Team The Powerpuffs for SELECT Makeathon '26 | VIT Vellore
+================================================================================

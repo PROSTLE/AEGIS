@@ -1,440 +1,683 @@
-import React, { useState } from 'react'
-import { INDIAN_CITIES, SECTORS } from '../utils/constants'
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { useAppStore } from '../context/appStore'
 
-const DEMO_REPORT = {
-  city: 'Jaipur',
-  idea: 'Sustainable packaging factory',
-  type: 'Manufacturing',
-  launchReadinessScore: 74,
-  scoreBreakdown: [
-    { label: 'Ecosystem Score', weight: 20, score: 68, color: '#3b82f6' },
-    { label: 'Survival Predictor', weight: 20, score: 72, color: '#8b5cf6' },
-    { label: 'Logistics Score', weight: 15, score: 71, color: '#06b6d4' },
-    { label: 'Workforce Score', weight: 15, score: 77, color: '#10b981' },
-    { label: 'Demand Forecast', weight: 15, score: 79, color: '#ec4899' },
-    { label: 'Activity / Crowding', weight: 10, score: 82, color: '#f59e0b' },
-    { label: 'Investor Availability', weight: 5, score: 65, color: '#6366f1' },
-  ],
-  workforce: {
-    total: 12400,
-    avgWage: 13800,
-    topRoles: ['Packaging Engineers', 'Machine Operators', 'Quality Inspectors', 'ITI Diploma Holders'],
-    hiringChannels: ['ITI Colleges', 'NCVT MIS Portal', 'Local Job Fairs', 'Campus Placements'],
-  },
-  location: {
-    recommended: 'Sitapura Industrial Area',
-    rent: 22,
-    highway: 'NH-48',
-    score: 84,
-    alternatives: ['Boranada Industrial Zone (₹18/sqft)', 'Kukas Industrial Area (₹25/sqft)'],
-  },
-  activity: {
-    active: 47,
-    closures: 8,
-    crowdingIndex: 0.38,
-    category: 'Gold Rush',
-  },
-  demand: {
-    cagr: 28,
-    horizon: 5,
-    seasonal: 'Q4 peaks (packaging demand for festive season)',
-    policy: 'PM-MITRA textile parks boost',
-  },
-  survival: {
-    probability: 71,
-    riskFactors: ['Limited cold chain in city', 'Competitive pricing from Gujarat clusters', 'Working capital seasonality'],
-    strengths: ['Strong ITI workforce base', 'Low land cost vs Ahmedabad', 'NH-48 logistics advantage'],
-  },
-  investors: [
-    { name: 'Blume Ventures', focus: 'Manufacturing / D2C', stage: 'Seed', cheque: '₹1-5Cr', score: 84 },
-    { name: 'Stellaris VC', focus: 'Deep Tech / MfgTech', stage: 'Seed - Series A', cheque: '₹2-10Cr', score: 78 },
-    { name: 'Rajasthan Angels', focus: 'Manufacturing', stage: 'Pre-seed', cheque: '₹25L-1Cr', score: 91 },
-    { name: 'India Quotient', focus: 'Consumer / D2C', stage: 'Seed', cheque: '₹1-3Cr', score: 72 },
-  ],
-  alternatives: [
-    { city: 'Ahmedabad', score: 81, reason: 'Larger packaging cluster, better investor access' },
-    { city: 'Coimbatore', score: 76, reason: 'Strong manufacturing talent, lower costs' },
-  ],
-  narrative: `Jaipur shows strong potential for a sustainable packaging startup. The Sitapura Industrial Area offers excellent infrastructure at competitive rates (₹22/sqft) with direct NH-48 highway access. With only 47 active companies and a 8-closure rate, the market crowding index (0.38) signals an early-mover opportunity. The skilled ITI workforce of 12,400+ workers at an average wage of ₹13,800/month provides significant cost advantage versus Bangalore or Pune. The 5-year demand forecast shows 28% CAGR, driven by PM-MITRA textile parks and growing D2C sector packaging needs in North India.`,
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+// ── Auto-detect helpers ──────────────────────────────────────────────────────
+const CITY_ALIASES = {
+  mumbai: 'Mumbai', bombay: 'Mumbai',
+  bangalore: 'Bangalore', bengaluru: 'Bangalore', blr: 'Bangalore',
+  delhi: 'Delhi', 'new delhi': 'Delhi', ncr: 'Delhi', gurugram: 'Delhi', noida: 'Delhi', gurgaon: 'Delhi',
+  hyderabad: 'Hyderabad', hyd: 'Hyderabad',
+  pune: 'Pune',
+  ahmedabad: 'Ahmedabad', amd: 'Ahmedabad',
+  chennai: 'Chennai', madras: 'Chennai',
+  jaipur: 'Jaipur',
+  kochi: 'Kochi', cochin: 'Kochi',
+  indore: 'Indore',
+  coimbatore: 'Coimbatore', cbe: 'Coimbatore',
+  surat: 'Surat',
+}
+const SECTOR_KEYWORDS = {
+  Fintech: ['fintech', 'payment', 'lending', 'neobank', 'insurance', 'insurtech', 'credit', 'loan', 'bfsi', 'banking', 'invest', 'wealth', 'upi', 'nopa', 'nbfc', 'gst invoic', 'gst filing'],
+  SaaS: ['saas', 'software', 'platform', 'b2b', 'crm', 'erp', 'api', 'cloud', 'dashboard', 'automation', 'workflow', 'subscription', 'compliance'],
+  Manufacturing: ['manufactur', 'factory', 'packag', 'production', 'fabricat', 'assembly', 'plant'],
+  Agritech: ['agri', 'farm', 'crop', 'harvest', 'irrigation', 'kisan', 'mandi'],
+  'D2C': ['d2c', 'direct to consumer', 'brand', 'e-commerce', 'ecommerce', 'dtc', 'consumer product'],
+  EdTech: ['edtech', 'education', 'learning', 'course', 'student', 'tutor', 'upskill'],
+  HealthTech: ['health', 'medtech', 'pharma', 'hospital', 'clinic', 'patient', 'doctor', 'medicine', 'diagnostic'],
+  'Deep Tech': ['ai ', 'machine learning', 'deep learning', 'robotics', 'drone', 'semiconductor', 'quantum'],
+  Logistics: ['logistics', 'supply chain', 'delivery', 'shipping', 'freight', 'last mile', 'cold chain', 'warehouse'],
+  CleanTech: ['clean energy', 'solar', 'ev ', 'electric vehicle', 'climate', 'sustainability', 'renewab'],
+}
+
+function detectFromIdea(text) {
+  const lower = text.toLowerCase()
+  let city = null; let sector = null
+  for (const [alias, name] of Object.entries(CITY_ALIASES)) {
+    if (lower.includes(alias)) { city = name; break }
+  }
+  let bestSector = null; let bestScore = 0
+  for (const [sec, kws] of Object.entries(SECTOR_KEYWORDS)) {
+    const score = kws.filter(k => lower.includes(k)).length
+    if (score > bestScore) { bestScore = score; bestSector = sec }
+  }
+  if (bestScore > 0) sector = bestSector
+  return { city, sector }
+}
+
+async function fetchJSON(url) {
+  const r = await fetch(url)
+  if (!r.ok) throw new Error(`${r.status}`)
+  return r.json()
+}
+async function postJSON(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  if (!r.ok) throw new Error(`${r.status}`)
+  return r.json()
+}
+
+function ScoreCircle({ score }) {
+  const color = score >= 70 ? '#69f6b8' : score >= 50 ? '#fbbf24' : '#ff6b6b'
+  const label = score >= 70 ? 'Strong Launch Signal' : score >= 50 ? 'Proceed with Caution' : 'High Risk'
+  const circumference = 2 * Math.PI * 58
+  const dash = (score / 100) * circumference
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+      <div style={{ position: 'relative', width: 170, height: 170 }}>
+        <svg width="170" height="170" viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)' }}>
+          <circle cx="65" cy="65" r="58" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="10" />
+          <circle cx="65" cy="65" r="58" fill="none" stroke={color} strokeWidth="10"
+            strokeDasharray={`${dash} ${circumference}`} strokeLinecap="round"
+            style={{ filter: `drop-shadow(0 0 12px ${color})`, transition: 'stroke-dasharray 1s ease' }} />
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: '2.8rem', fontWeight: 900, fontFamily: 'Manrope', color, lineHeight: 1 }}>{score}</span>
+          <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>/ 100</span>
+        </div>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '0.95rem', fontWeight: 700, color }}>Launch Readiness Score</div>
+        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>{label}</div>
+      </div>
+    </div>
+  )
 }
 
 function ScoreBar({ label, weight, score, color }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</span>
+        <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>{label}</span>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Weight: {weight}%</span>
-          <span style={{ fontSize: '0.88rem', fontWeight: 700, fontFamily: 'JetBrains Mono', color }}>{score}/100</span>
+          <span style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.25)' }}>wt: {weight}%</span>
+          <span style={{ fontSize: '0.9rem', fontWeight: 700, fontFamily: 'Space Grotesk', color }}>{score}/100</span>
         </div>
       </div>
-      <div className="progress-bar">
-        <div
-          className="progress-fill"
-          style={{ width: `${score}%`, background: color, boxShadow: `0 0 8px ${color}50` }}
-        />
+      <div style={{ height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${score}%`, background: color, borderRadius: 99, boxShadow: `0 0 10px ${color}60`, transition: 'width 0.8s ease' }} />
       </div>
     </div>
   )
 }
 
-function ScoreCircle({ score }) {
-  const color = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444'
-  const label = score >= 70 ? 'Strong Launch Signal' : score >= 50 ? 'Proceed with Caution' : 'High Risk'
-  const circumference = 2 * Math.PI * 58
-  const dash = (score / 100) * circumference
-
+function Tag({ label, color = '#85adff' }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-      <div style={{ position: 'relative', width: 160, height: 160 }}>
-        <svg width="160" height="160" viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)' }}>
-          <circle cx="65" cy="65" r="58" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="10" />
-          <circle
-            cx="65" cy="65" r="58" fill="none"
-            stroke={color}
-            strokeWidth="10"
-            strokeDasharray={`${dash} ${circumference}`}
-            strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 10px ${color})` }}
-          />
-        </svg>
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: 2,
-        }}>
-          <span style={{ fontSize: '2.5rem', fontWeight: 900, fontFamily: 'Outfit', color, lineHeight: 1 }}>{score}</span>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>/ 100</span>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 99, background: `${color}15`, border: `1px solid ${color}30`, fontSize: '0.72rem', fontFamily: 'Space Grotesk', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+      {label}
+    </span>
+  )
+}
+
+function IdeaScoreCard({ label, score, color, icon }) {
+  const pct = Math.min(100, Math.max(0, score))
+  return (
+    <div style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${color}22`, borderRadius: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 16, color }}>{icon}</span>
+          <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
         </div>
+        <span style={{ fontFamily: 'Manrope', fontSize: '1.4rem', fontWeight: 800, color }}>{score}</span>
       </div>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '1rem', fontWeight: 700, color }}>Launch Readiness Score</div>
-        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>{label}</div>
+      <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, ${color}88, ${color})`, borderRadius: 99, transition: 'width 1s ease' }} />
       </div>
     </div>
   )
 }
 
-function AdvisorPage() {
-  const [formData, setFormData] = useState({
-    city: 'Jaipur',
-    startupIdea: '',
-    startupType: 'Manufacturing',
-    teamSize: 3,
-    fundingStage: 'Pre-seed',
-  })
+const LOADING_STEPS = [
+  'Fetching MCA21 startup registry data…',
+  'Running city-sector survival ML model…',
+  'Pulling logistics & zone intelligence…',
+  'Scoring idea innovation & problem-fit…',
+  'Matching investors via compatibility engine…',
+  'Querying Gemini AI for terrain analysis…',
+]
+
+export default function AdvisorPage() {
+  const store = useAppStore()
+  const [idea, setIdea] = useState(store.startupIdea || '')
+  const [detected, setDetected] = useState({ city: store.detectedCity, sector: store.detectedSector })
   const [loading, setLoading] = useState(false)
-  const [report, setReport] = useState(null)
-  const [demoMode, setDemoMode] = useState(false)
+  const [loadStep, setLoadStep] = useState(0)
+  const [report, setReport] = useState(store.activeReport || null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (idea.length > 5) {
+      const det = detectFromIdea(idea)
+      setDetected(det)
+    } else {
+      setDetected({ city: null, sector: null })
+    }
+  }, [idea])
+
+  const valid = idea.trim().length >= 15 && detected.city && detected.sector
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    setReport(null)
-    // Simulate API call with delay
-    await new Promise(r => setTimeout(r, 2500))
-    const r = {
-      ...DEMO_REPORT,
-      city: formData.city,
-      type: formData.startupType,
-      idea: formData.startupIdea || 'Your startup idea',
+    if (!valid) return
+    setError(''); setLoading(true); setReport(null); setLoadStep(0)
+    store.clearReport()
+
+    const { city, sector } = detected
+    const stepInterval = setInterval(() => setLoadStep(s => Math.min(s + 1, LOADING_STEPS.length - 1)), 2500)
+
+    try {
+      // Parallel fetch all city+sector data
+      const [survival, logistics, activity, demand, location, matchmaking] = await Promise.all([
+        fetchJSON(`${API}/api/survival/city/${encodeURIComponent(city)}?sector=${encodeURIComponent(sector)}`),
+        fetchJSON(`${API}/api/logistics/city/${encodeURIComponent(city)}/breakdown`),
+        fetchJSON(`${API}/api/activity/city/${encodeURIComponent(city)}`),
+        fetchJSON(`${API}/api/demand/city/${encodeURIComponent(city)}/full`),
+        fetchJSON(`${API}/api/location/city/${encodeURIComponent(city)}`),
+        fetchJSON(`${API}/api/matchmaking/match?city=${encodeURIComponent(city)}&sector=${encodeURIComponent(sector)}&funding_stage=Seed`),
+      ])
+
+      const survivalScore  = Math.round(survival.survival_probability || 70)
+      const logisticsScore = Math.round(logistics.overall_score || 70)
+      const cagr           = demand.cagr_pct || 25
+      const crowdingIdx    = activity.crowding_index || 0.8
+      const demandScore    = Math.min(Math.round(cagr * 2.8), 100)
+      const activityScore  = Math.max(0, Math.round(100 - ((crowdingIdx - 0.5) * 30)))
+
+      // Get city ecosystem score from heatmap
+      let ecosystemScore = 74
+      try {
+        const heatmapData = await fetchJSON(`${API}/api/heatmap/cities/${encodeURIComponent(city)}`)
+        ecosystemScore = heatmapData.score || 74
+      } catch (_) {}
+
+      const launchScore = Math.round(
+        ecosystemScore * 0.20 + survivalScore * 0.20 + logisticsScore * 0.15 +
+        demandScore * 0.15 + activityScore * 0.10
+      )
+
+      const topZone = location.recommended_zone?.name || `${city} Commercial Zone`
+      const zoneRent = location.recommended_zone?.rent || 80
+
+      // Run idea intelligence analysis (innovation + problem-fit + city-domain)
+      const [aiResult, ideaAnalysis] = await Promise.all([
+        postJSON(`${API}/api/ai/narrative`, {
+          city, sector, startup_idea: idea, funding_stage: 'Seed', team_size: 4,
+          launch_readiness_score: launchScore, survival_probability: survivalScore,
+          logistics_score: logisticsScore, cagr, active_companies: activity.active_companies || 100,
+          crowding_index: crowdingIdx, top_zone: topZone, zone_rent: zoneRent,
+        }),
+        postJSON(`${API}/api/ai/idea-analysis`, {
+          city, sector, startup_idea: idea, funding_stage: 'Seed', team_size: 4,
+        }),
+      ])
+
+      const fullReport = {
+        city, sector, idea, launchScore, aiSource: aiResult.source,
+        narrative: aiResult.narrative,
+        // Idea intelligence scores
+        ideaIntelligence: {
+          innovation_score: ideaAnalysis.innovation_score || 65,
+          problem_fit_score: ideaAnalysis.problem_fit_score || 65,
+          city_domain_score: ideaAnalysis.city_domain_score || 65,
+          sector_timing_score: ideaAnalysis.sector_timing_score || 65,
+          overall_viability: ideaAnalysis.overall_viability || 65,
+          innovation_verdict: ideaAnalysis.innovation_verdict || '',
+          real_problems_addressed: ideaAnalysis.real_problems_addressed || [],
+          city_moat: ideaAnalysis.city_moat || '',
+          city_domain_insight: ideaAnalysis.city_domain_insight || '',
+          policy_tailwinds: ideaAnalysis.policy_tailwinds || [],
+          risk_summary: ideaAnalysis.risk_summary || '',
+          ai_narrative: ideaAnalysis.ai_narrative || '',
+          ai_source: ideaAnalysis.ai_source || 'rule-based',
+        },
+        scoreBreakdown: [
+          { label: 'Ecosystem Score',     weight: 20, score: ecosystemScore,   color: '#85adff' },
+          { label: 'Survival Predictor',  weight: 20, score: survivalScore,    color: '#c180ff' },
+          { label: 'Logistics Score',     weight: 15, score: logisticsScore,   color: '#85adff' },
+          { label: 'Demand Forecast',     weight: 15, score: demandScore,      color: '#fbbf24' },
+          { label: 'Activity / Crowding', weight: 10, score: activityScore,    color: '#69f6b8' },
+          { label: 'Investor Fit',        weight: 5,  score: Math.min((matchmaking.matched?.length || 0) * 15, 95), color: '#85adff' },
+        ],
+        survival: { probability: survivalScore, strengths: survival.strengths || [], riskFactors: survival.risk_factors || [] },
+        activity: { active: activity.active_companies, closures: activity.closures_2yr, crowdingIndex: crowdingIdx, category: activity.category },
+        demand: { cagr, policy: demand.policy },
+        location: { recommended: topZone, rent: zoneRent },
+        logistics: { score: logisticsScore, recommendation: logistics.recommendation },
+        investors: (matchmaking.matched || []).slice(0, 4).map(inv => ({
+          name: inv.name, focus: (inv.focus || []).join(' · '), stage: inv.stage, cheque: inv.cheque,
+          score: Math.min(inv.compatibility_score, 99),
+        })),
+      }
+
+      setReport(fullReport)
+      // 🔑 Save to global store — all other pages will see this
+      store.setActiveReport(fullReport)
+      store.setIdeaContext({ idea, city, sector })
+    } catch (err) {
+      setError(`Failed to generate report: ${err.message}. Ensure the backend is running at ${API}`)
+    } finally {
+      clearInterval(stepInterval)
+      setLoading(false)
     }
-    setReport(r)
-    setLoading(false)
-    setDemoMode(false)
   }
 
-  const loadDemo = () => {
-    setFormData({ city: 'Jaipur', startupIdea: 'sustainable packaging factory', startupType: 'Manufacturing', teamSize: 3, fundingStage: 'Pre-seed' })
-    setReport(DEMO_REPORT)
-    setDemoMode(true)
+  const handleNewAnalysis = () => {
+    setReport(null)
+    store.clearReport()
   }
 
-  return (
-    <div className="page-container">
+  // ── Input form ─────────────────────────────────────────────────────────────
+  if (!report && !loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 24px 48px', position: 'relative', overflow: 'hidden' }}>
+      {/* BG glow */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'radial-gradient(at 20% 20%, rgba(133,173,255,0.06) 0, transparent 50%), radial-gradient(at 80% 80%, rgba(193,128,255,0.06) 0, transparent 50%)' }} />
+
       {/* Header */}
-      <div className="page-header">
-        <h1 className="page-title">🎯 AI Advisor – Terrain Intelligence</h1>
-        <div className="page-subtitle">
-          <span>Powered by Gemini 1.5 Flash + RAG pipeline · Full report in ~3 minutes</span>
-          <span className="badge badge-purple">RAG + LLM</span>
+      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(14,14,14,0.85)', backdropFilter: 'blur(24px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 32px', height: 68 }}>
+        <Link to="/" style={{ fontFamily: 'Manrope', fontSize: '1.1rem', fontWeight: 800, color: '#85adff', textDecoration: 'none', letterSpacing: '-0.02em' }}>AEGIS</Link>
+        <div style={{ display: 'flex', gap: 28 }}>
+          {[['Intelligence', '/intelligence'], ['Terrain', '/advisor'], ['Capital', '/capital'], ['Vault', '/vault']].map(([l, p], i) => (
+            <Link key={l} to={p} style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: i === 1 ? '#85adff' : 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{l}</Link>
+          ))}
         </div>
-      </div>
+        <Link to="/dashboard" style={{ padding: '7px 18px', borderRadius: 99, background: '#85adff', color: '#0a0a0a', fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '0.82rem', textDecoration: 'none' }}>Dashboard</Link>
+      </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 24, alignItems: 'start' }}>
-        {/* Form Panel */}
-        <div>
-          <div className="card" style={{ position: 'sticky', top: 80 }}>
-            <div className="section-title" style={{ marginBottom: 20 }}>
-              <div className="section-title-icon">📝</div>
-              Startup Profile
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Target City</label>
-                <select
-                  value={formData.city}
-                  onChange={e => setFormData({ ...formData, city: e.target.value })}
-                  id="advisor-city-select"
-                >
-                  {INDIAN_CITIES.map(c => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Startup Idea</label>
-                <textarea
-                  rows={3}
-                  value={formData.startupIdea}
-                  onChange={e => setFormData({ ...formData, startupIdea: e.target.value })}
-                  placeholder="e.g., sustainable packaging factory targeting D2C brands"
-                  id="advisor-idea-input"
-                  style={{ resize: 'vertical' }}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Startup Type / Sector</label>
-                <select
-                  value={formData.startupType}
-                  onChange={e => setFormData({ ...formData, startupType: e.target.value })}
-                  id="advisor-type-select"
-                >
-                  {SECTORS.map(s => <option key={s}>{s}</option>)}
-                </select>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div className="form-group">
-                  <label>Team Size</label>
-                  <input
-                    type="number" min={1} max={100}
-                    value={formData.teamSize}
-                    onChange={e => setFormData({ ...formData, teamSize: parseInt(e.target.value) })}
-                    id="advisor-team-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Funding Stage</label>
-                  <select
-                    value={formData.fundingStage}
-                    onChange={e => setFormData({ ...formData, fundingStage: e.target.value })}
-                    id="advisor-stage-select"
-                  >
-                    {['Pre-seed', 'Seed', 'Series A', 'Series B', 'Series C'].map(s => <option key={s}>{s}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <button
-                type="submit" disabled={loading}
-                className="btn btn-primary btn-full btn-lg"
-                id="advisor-submit-btn"
-                style={{ marginBottom: 10 }}
-              >
-                {loading ? (
-                  <><div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> Analyzing...</>
-                ) : '🚀 Generate Terrain Report'}
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-secondary btn-full btn-sm"
-                onClick={loadDemo}
-                id="advisor-demo-btn"
-              >
-                📋 Load Demo (Jaipur · Packaging)
-              </button>
-            </form>
-
-            {/* Score Weights */}
-            <div style={{ marginTop: 20, padding: '14px 16px', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', borderRadius: 10 }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Score Weights</div>
-              {[
-                ['Ecosystem', '20%'], ['Survival AI', '20%'], ['Logistics', '15%'],
-                ['Workforce', '15%'], ['Demand', '15%'], ['Activity', '10%'], ['Investors', '5%'],
-              ].map(([k, v]) => (
-                <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--text-secondary)', padding: '3px 0' }}>
-                  <span>{k}</span><span style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>{v}</span>
-                </div>
-              ))}
-            </div>
+      <main style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 780 }}>
+        {/* Badge */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 14px', borderRadius: 99, background: 'rgba(193,128,255,0.08)', border: '1px solid rgba(193,128,255,0.18)' }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#c180ff', boxShadow: '0 0 8px rgba(193,128,255,0.7)' }} />
+            <span style={{ fontFamily: 'Space Grotesk', color: '#c180ff', fontSize: '0.62rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em' }}>Gemini AI · City-Domain Intelligence · ML Survival Model</span>
           </div>
         </div>
 
-        {/* Report Panel */}
+        <h1 style={{ fontFamily: 'Manrope', fontSize: 'clamp(2.4rem, 5.5vw, 4rem)', fontWeight: 800, letterSpacing: '-0.04em', color: 'white', lineHeight: 1.08, marginBottom: 14, textAlign: 'center' }}>
+          Map Your <span style={{ color: '#85adff' }}>Terrain</span>
+        </h1>
+        <p style={{ fontFamily: 'Inter', color: 'rgba(255,255,255,0.4)', fontSize: '1rem', textAlign: 'center', marginBottom: 44, lineHeight: 1.6 }}>
+          Describe your startup idea — mention your <strong style={{ color: 'rgba(255,255,255,0.6)' }}>city</strong> and <strong style={{ color: 'rgba(255,255,255,0.6)' }}>what you're building</strong>. AEGIS detects the rest, scores your idea's innovation, problem-fit, and city-domain alignment.
+        </p>
+
+        {/* Card */}
+        <div style={{ background: 'rgba(20,20,20,0.7)', backdropFilter: 'blur(24px)', borderRadius: 28, border: '1px solid rgba(255,255,255,0.07)', padding: 'clamp(24px, 4vw, 44px)', boxShadow: '0 40px 80px rgba(0,0,0,0.6)' }}>
+          <form onSubmit={handleSubmit}>
+            {/* Error */}
+            {error && (
+              <div style={{ padding: '12px 18px', marginBottom: 24, background: 'rgba(255,107,107,0.07)', border: '1px solid rgba(255,107,107,0.2)', borderRadius: 12, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#ff6b6b', flexShrink: 0, marginTop: 2 }}>error</span>
+                <span style={{ fontFamily: 'Inter', fontSize: '0.85rem', color: '#ff6b6b', lineHeight: 1.5 }}>{error}</span>
+              </div>
+            )}
+
+            {/* Textarea */}
+            <div style={{ position: 'relative', marginBottom: 20 }}>
+              <label style={{ display: 'block', fontFamily: 'Space Grotesk', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.25)', marginBottom: 10 }}>
+                Your Startup Idea <span style={{ color: '#ff6b6b' }}>*</span>
+              </label>
+              <textarea
+                id="advisor-idea-input"
+                value={idea}
+                onChange={e => setIdea(e.target.value)}
+                placeholder={`Example: "Building a fintech app in Mumbai to help SMEs manage GST invoicing and working capital loans…"`}
+                style={{
+                  width: '100%', minHeight: 190, resize: 'none', outline: 'none',
+                  background: 'rgba(0,0,0,0.35)', color: 'white', fontFamily: 'Inter',
+                  fontSize: 'clamp(0.95rem, 2vw, 1.3rem)', lineHeight: 1.55,
+                  padding: '24px 28px', borderRadius: 18, boxSizing: 'border-box',
+                  border: `1.5px solid ${valid ? 'rgba(105,246,184,0.35)' : idea.length > 5 && !detected.city ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                  transition: 'border-color 0.25s',
+                }}
+                onFocus={e => e.target.style.borderColor = 'rgba(133,173,255,0.4)'}
+                onBlur={e => e.target.style.borderColor = valid ? 'rgba(105,246,184,0.35)' : 'rgba(255,255,255,0.08)'}
+              />
+              <span style={{ position: 'absolute', bottom: 16, right: 20, fontFamily: 'Space Grotesk', fontSize: '0.58rem', color: idea.length >= 15 ? '#69f6b8' : 'rgba(255,255,255,0.2)' }}>
+                {idea.length} chars {idea.length >= 15 ? '✓' : `(min 15)`}
+              </span>
+            </div>
+
+            {/* Detected tags row */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 28, minHeight: 28, alignItems: 'center' }}>
+              {detected.city || detected.sector ? (
+                <>
+                  <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.62rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Detected:</span>
+                  {detected.city && <Tag label={`📍 ${detected.city}`} color="#85adff" />}
+                  {detected.sector && <Tag label={`⚡ ${detected.sector}`} color="#69f6b8" />}
+                  {!detected.city && idea.length > 10 && <Tag label="⚠ Mention a city" color="#fbbf24" />}
+                </>
+              ) : idea.length > 5 ? (
+                <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)' }}>
+                  Mention your <span style={{ color: '#85adff' }}>city</span> (Mumbai, Bangalore, Delhi…) and what you're building
+                </span>
+              ) : null}
+            </div>
+
+            {/* What you'll get */}
+            {valid && (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 20, padding: '12px 16px', background: 'rgba(105,246,184,0.04)', border: '1px solid rgba(105,246,184,0.12)', borderRadius: 12 }}>
+                {['Innovation Score', 'Problem-Fit Score', 'City-Domain Fit', 'Survival Forecast', 'AI Narrative'].map(item => (
+                  <span key={item} style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', fontWeight: 700, color: '#69f6b8', background: 'rgba(105,246,184,0.08)', padding: '3px 8px', borderRadius: 99 }}>{item}</span>
+                ))}
+              </div>
+            )}
+
+            {/* Submit */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+              <button
+                type="submit"
+                disabled={!valid}
+                id="advisor-submit-btn"
+                style={{
+                  width: '100%', padding: '18px 32px',
+                  background: valid ? 'linear-gradient(135deg, #85adff, #6b8fe8)' : 'rgba(255,255,255,0.05)',
+                  borderRadius: 99, border: 'none', cursor: valid ? 'pointer' : 'not-allowed',
+                  opacity: valid ? 1 : 0.35, transition: 'all 0.25s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  boxShadow: valid ? '0 16px 40px -12px rgba(133,173,255,0.5)' : 'none',
+                }}
+                onMouseEnter={e => { if (valid) e.currentTarget.style.transform = 'translateY(-2px)' }}
+                onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+              >
+                <span style={{ fontFamily: 'Manrope', fontWeight: 800, color: valid ? '#0a0a0a' : 'rgba(255,255,255,0.3)', fontSize: '1rem', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>
+                  {valid ? `Generate Full Terrain Report — ${detected.city} · ${detected.sector}` : 'Add your city & idea to continue'}
+                </span>
+                {valid && <span className="material-symbols-outlined" style={{ color: '#0a0a0a', fontSize: 20 }}>arrow_forward</span>}
+              </button>
+              <p style={{ fontFamily: 'Space Grotesk', fontSize: '0.55rem', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.25em', margin: 0 }}>
+                Powered by Gemini AI · MCA21 · DPIIT · NCVT · City-Domain Intelligence
+              </p>
+            </div>
+          </form>
+        </div>
+
+        {/* Example pills */}
+        <div style={{ marginTop: 28, display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
+          {[
+            'Fintech app in Mumbai for SME lending and working capital',
+            'SaaS platform in Bangalore for B2B HR compliance automation',
+            'AI-powered cold chain logistics in Delhi for pharma delivery',
+            'D2C skincare brand in Pune targeting urban millennials',
+            'HealthTech platform in Hyderabad for rural telemedicine access',
+          ].map(ex => (
+            <button key={ex} onClick={() => setIdea(ex)} style={{ padding: '6px 16px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', fontFamily: 'Inter', fontSize: '0.78rem', cursor: 'pointer', transition: 'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(133,173,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(133,173,255,0.2)'; e.currentTarget.style.color = '#85adff' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
+            >{ex}</button>
+          ))}
+        </div>
+      </main>
+    </div>
+  )
+
+  // ── Loading ────────────────────────────────────────────────────────────────
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 32 }}>
+      <div style={{ width: 56, height: 56, borderRadius: '50%', border: '3px solid rgba(133,173,255,0.15)', borderTopColor: '#85adff', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontFamily: 'Manrope', fontSize: '1.2rem', fontWeight: 700, color: 'white', marginBottom: 20 }}>Generating Terrain Report…</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {LOADING_STEPS.map((step, i) => (
+            <div key={i} style={{ fontFamily: 'Space Grotesk', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center', color: i <= loadStep ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.2)', transition: 'color 0.3s' }}>
+              {i < loadStep ? <span className="material-symbols-outlined" style={{ fontSize: 15, color: '#69f6b8' }}>check_circle</span>
+                : i === loadStep ? <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(133,173,255,0.3)', borderTopColor: '#85adff', animation: 'spin 0.8s linear infinite' }} />
+                : <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />}
+              {step}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  const ii = report.ideaIntelligence || {}
+
+  // ── Report ─────────────────────────────────────────────────────────────────
+  return (
+    <div className="page-container" style={{ maxWidth: 1180 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
         <div>
-          {!report && !loading && (
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              minHeight: 400, gap: 16, color: 'var(--text-muted)', textAlign: 'center',
-            }}>
-              <div style={{ fontSize: '4rem' }}>🎯</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>No Report Generated Yet</div>
-              <p style={{ maxWidth: 320, margin: 0 }}>Fill in your startup details and click Generate, or try the demo to see a sample Jaipur report instantly.</p>
-              <button className="btn btn-secondary" onClick={loadDemo} id="empty-demo-btn">📋 Try Demo Report</button>
+          <h1 style={{ fontFamily: 'Manrope', fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.04em', marginBottom: 10 }}>Terrain Analysis Report</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#69f6b8', boxShadow: '0 0 8px #69f6b8', animation: 'pulse 2s ease infinite' }} />
+              <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.65rem', fontWeight: 700, color: '#69f6b8', textTransform: 'uppercase', letterSpacing: '0.12em' }}>{report.city} · {report.sector}</span>
+            </div>
+            <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', color: '#c180ff', background: 'rgba(193,128,255,0.08)', border: '1px solid rgba(193,128,255,0.15)', padding: '2px 10px', borderRadius: 99 }}>
+              ✦ {report.aiSource?.includes('gemini') ? 'Gemini AI' : 'Rule-Based AI'}
+            </span>
+          </div>
+        </div>
+        <button onClick={handleNewAnalysis} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 99, color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '0.78rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 15 }}>arrow_back</span>New Analysis
+        </button>
+      </div>
+
+      {/* Idea Intelligence Banner */}
+      {ii.innovation_verdict && (
+        <div style={{ padding: '18px 22px', marginBottom: 24, background: 'linear-gradient(135deg, rgba(193,128,255,0.08), rgba(133,173,255,0.06))', border: '1px solid rgba(193,128,255,0.2)', borderRadius: 18, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 22, color: '#c180ff' }}>lightbulb</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', fontWeight: 700, color: '#c180ff', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>Idea Intelligence Verdict</div>
+            <div style={{ fontFamily: 'Inter', fontSize: '0.88rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>{ii.innovation_verdict}</div>
+          </div>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'Manrope', fontSize: '1.8rem', fontWeight: 800, color: '#c180ff' }}>{ii.overall_viability}</div>
+              <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.55rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Overall Viability</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 22, alignItems: 'start' }}>
+        {/* Sidebar */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="card" style={{ textAlign: 'center', padding: 32 }}>
+            <ScoreCircle score={report.launchScore} />
+          </div>
+
+          {/* Idea Intelligence Scores */}
+          {ii.innovation_score && (
+            <div style={{ padding: 18, background: 'rgba(193,128,255,0.04)', border: '1px solid rgba(193,128,255,0.1)', borderRadius: 16 }}>
+              <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.58rem', fontWeight: 700, color: '#c180ff', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 14 }}>Idea Intelligence</div>
+              <IdeaScoreCard label="Innovation" score={ii.innovation_score} color="#c180ff" icon="auto_awesome" />
+              <div style={{ marginTop: 10 }}>
+                <IdeaScoreCard label="Problem-Fit" score={ii.problem_fit_score} color="#69f6b8" icon="task_alt" />
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <IdeaScoreCard label="City-Domain" score={ii.city_domain_score} color="#85adff" icon="location_city" />
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <IdeaScoreCard label="Sector Timing" score={ii.sector_timing_score} color="#fbbf24" icon="trending_up" />
+              </div>
             </div>
           )}
 
-          {loading && (
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              minHeight: 400, gap: 20, color: 'var(--text-muted)',
-            }}>
-              <div className="spinner" style={{ width: 48, height: 48, borderWidth: 4 }} />
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Generating Terrain Report…</div>
-                {['Fetching MCA21 data…', 'Computing workforce scores…', 'Running XGBoost survival model…', 'Querying Gemini 1.5 Flash…'].map((step, i) => (
-                  <div key={i} style={{ fontSize: '0.8rem', color: 'var(--text-muted)', padding: '2px 0', animation: `fadeIn 0.5s ${i * 0.4}s both` }}>✓ {step}</div>
-                ))}
+          <div style={{ padding: 18, background: 'rgba(133,173,255,0.04)', border: '1px solid rgba(133,173,255,0.08)', borderRadius: 16 }}>
+            <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.58rem', fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 12 }}>Score Weights</div>
+            {[['Ecosystem', '20%'], ['Survival AI', '20%'], ['Logistics', '15%'], ['Demand', '15%'], ['Activity', '10%'], ['Investors', '5%']].map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.77rem', color: 'rgba(255,255,255,0.45)', padding: '3px 0' }}>
+                <span>{k}</span><span style={{ fontWeight: 700, color: '#85adff' }}>{v}</span>
               </div>
+            ))}
+          </div>
+          <div style={{ padding: '14px 16px', background: 'rgba(105,246,184,0.04)', border: '1px solid rgba(105,246,184,0.08)', borderRadius: 16 }}>
+            <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.58rem', fontWeight: 700, color: '#69f6b8', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 10 }}>Data Sources</div>
+            {['MCA21 Company Registry', 'DPIIT Startup India DB', 'NCVT Workforce Portal', 'City-Domain Intelligence', 'Gemini AI Analysis', 'GST Analytics (GSTN)'].map(s => (
+              <div key={s} style={{ fontFamily: 'Inter', fontSize: '0.73rem', color: 'rgba(255,255,255,0.4)', padding: '2px 0', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 11, color: '#69f6b8', flexShrink: 0, marginTop: 3 }}>check_circle</span>{s}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {/* Score Breakdown */}
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#85adff' }}>leaderboard</span>
+              <h3 style={{ fontFamily: 'Manrope', fontWeight: 700 }}>Score Breakdown</h3>
             </div>
-          )}
+            {report.scoreBreakdown.map(s => <ScoreBar key={s.label} {...s} />)}
+          </div>
 
-          {report && !loading && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* Score */}
-              <div className="card" style={{ textAlign: 'center' }}>
-                {demoMode && (
-                  <div style={{ marginBottom: 12 }}>
-                    <span className="badge badge-yellow">⚠️ Demo Mode — Jaipur · Sustainable Packaging · Manufacturing</span>
-                  </div>
-                )}
-                <ScoreCircle score={report.launchReadinessScore} />
+          {/* City-Domain Intelligence */}
+          {ii.city_moat && (
+            <div className="card" style={{ background: 'linear-gradient(135deg, rgba(133,173,255,0.05), rgba(133,173,255,0.02))' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#85adff' }}>location_city</span>
+                <h3 style={{ fontFamily: 'Manrope', fontWeight: 700 }}>City-Domain Intelligence — {report.city}</h3>
               </div>
-
-              {/* Score Breakdown */}
-              <div className="card">
-                <div className="section-title" style={{ marginBottom: 18 }}>
-                  <div className="section-title-icon">📊</div>
-                  Score Breakdown
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                <div style={{ padding: '14px 16px', background: 'rgba(133,173,255,0.06)', borderRadius: 12 }}>
+                  <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.58rem', fontWeight: 700, color: '#85adff', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>City Moat</div>
+                  <p style={{ fontFamily: 'Inter', fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', margin: 0, lineHeight: 1.5 }}>{ii.city_moat}</p>
                 </div>
-                {report.scoreBreakdown.map(s => (
-                  <ScoreBar key={s.label} {...s} />
-                ))}
-              </div>
-
-              {/* Narrative */}
-              <div className="card" style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.07), rgba(139,92,246,0.07))' }}>
-                <div className="section-title" style={{ marginBottom: 12 }}>
-                  <div className="section-title-icon">🤖</div>
-                  AI Analysis — {report.city} · {report.type}
-                </div>
-                <p style={{ fontSize: '0.88rem', lineHeight: 1.75, color: 'var(--text-secondary)', margin: 0 }}>
-                  {report.narrative}
-                </p>
-              </div>
-
-              {/* Strengths & Risks */}
-              <div className="grid-2">
-                <div className="card">
-                  <div className="section-title" style={{ marginBottom: 14 }}>
-                    <span>✅</span> Top Strengths
-                  </div>
-                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {report.survival.strengths.map((s, i) => (
-                      <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                        <span style={{ color: 'var(--accent-success)', fontWeight: 700, flexShrink: 0 }}>↑</span>
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="card">
-                  <div className="section-title" style={{ marginBottom: 14 }}>
-                    <span>⚠️</span> Key Risks
-                  </div>
-                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {report.survival.riskFactors.map((r, i) => (
-                      <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                        <span style={{ color: 'var(--accent-warning)', fontWeight: 700, flexShrink: 0 }}>!</span>
-                        {r}
-                      </li>
-                    ))}
-                  </ul>
+                <div style={{ padding: '14px 16px', background: 'rgba(105,246,184,0.06)', borderRadius: 12 }}>
+                  <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.58rem', fontWeight: 700, color: '#69f6b8', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>Why This City</div>
+                  <p style={{ fontFamily: 'Inter', fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', margin: 0, lineHeight: 1.5 }}>{ii.city_domain_insight}</p>
                 </div>
               </div>
-
-              {/* Key Metrics Row */}
-              <div className="grid-4">
-                <div className="metric-card" style={{ borderTop: '2px solid #10b981' }}>
-                  <div className="metric-value" style={{ color: '#10b981' }}>{report.workforce.total.toLocaleString('en-IN')}</div>
-                  <div className="metric-label">Skilled Workers</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Avg ₹{report.workforce.avgWage.toLocaleString('en-IN')}/mo</div>
-                </div>
-                <div className="metric-card" style={{ borderTop: '2px solid #06b6d4' }}>
-                  <div className="metric-value" style={{ color: '#06b6d4' }}>₹{report.location.rent}</div>
-                  <div className="metric-label">Rent / sqft</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>{report.location.recommended}</div>
-                </div>
-                <div className="metric-card" style={{ borderTop: '2px solid #f59e0b' }}>
-                  <div className="metric-value" style={{ color: '#f59e0b' }}>{report.activity.active}</div>
-                  <div className="metric-label">Active Cos</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>{report.activity.closures} closures · {report.activity.category}</div>
-                </div>
-                <div className="metric-card" style={{ borderTop: '2px solid #ec4899' }}>
-                  <div className="metric-value" style={{ color: '#ec4899' }}>{report.demand.cagr}%</div>
-                  <div className="metric-label">5-Year CAGR</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Demand Forecast</div>
-                </div>
-              </div>
-
-              {/* Investors */}
-              <div className="card">
-                <div className="section-title" style={{ marginBottom: 14 }}>
-                  <div className="section-title-icon">🤝</div>
-                  Matching Investors — {report.city} · {report.type}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {report.investors.map((inv, i) => (
-                    <div key={i} style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-                      padding: '12px 16px', background: 'var(--bg-secondary)', borderRadius: 10,
-                      border: '1px solid var(--border-color)',
-                    }}>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: 3 }}>{inv.name}</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{inv.focus} · {inv.stage} · {inv.cheque}</div>
-                      </div>
-                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 800, fontSize: '1.1rem', color: inv.score >= 80 ? '#10b981' : '#f59e0b' }}>{inv.score}%</div>
-                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Match</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Alternative Cities */}
-              {report.alternatives && (
-                <div className="card" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                  <div className="section-title" style={{ marginBottom: 14 }}>
-                    <span>💡</span> Better Alternative Cities (Score below 80)
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {report.alternatives.map((c, i) => (
-                      <div key={i} style={{
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '12px 14px', background: 'var(--bg-card)', borderRadius: 10,
-                        border: '1px solid var(--border-color)',
-                      }}>
-                        <div>
-                          <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.city}</span>
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: 10 }}>{c.reason}</span>
-                        </div>
-                        <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 800, color: '#10b981' }}>{c.score}/100</span>
-                      </div>
+              {(ii.policy_tailwinds || []).length > 0 && (
+                <div>
+                  <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>Policy Tailwinds</div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {(ii.policy_tailwinds || []).map((p, i) => (
+                      <span key={i} style={{ fontFamily: 'Space Grotesk', fontSize: '0.68rem', color: '#fbbf24', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', padding: '3px 10px', borderRadius: 99 }}>{p}</span>
                     ))}
                   </div>
                 </div>
               )}
             </div>
           )}
+
+          {/* Real World Problems */}
+          {(ii.real_problems_addressed || []).length > 0 && (
+            <div className="card" style={{ background: 'linear-gradient(135deg, rgba(105,246,184,0.04), rgba(105,246,184,0.02))' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#69f6b8' }}>public</span>
+                <h3 style={{ fontFamily: 'Manrope', fontWeight: 700 }}>Real-World Problems Your Idea Addresses</h3>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {(ii.real_problems_addressed || []).map((prob, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 12px', background: 'rgba(105,246,184,0.05)', borderRadius: 10, border: '1px solid rgba(105,246,184,0.1)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: '#69f6b8', flexShrink: 0, marginTop: 2 }}>crisis_alert</span>
+                    <span style={{ fontFamily: 'Inter', fontSize: '0.83rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{prob}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* AI Narrative */}
+          <div className="card" style={{ background: 'linear-gradient(135deg, rgba(133,173,255,0.04), rgba(193,128,255,0.04))' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#c180ff' }}>auto_awesome</span>
+              <h3 style={{ fontFamily: 'Manrope', fontWeight: 700 }}>AI Terrain Analysis — {report.city} · {report.sector}</h3>
+            </div>
+            <p style={{ fontSize: '0.88rem', lineHeight: 1.9, color: 'rgba(255,255,255,0.6)', margin: 0, whiteSpace: 'pre-line' }}>{report.narrative}</p>
+          </div>
+
+          {/* Idea Intelligence Narrative */}
+          {ii.ai_narrative && (
+            <div className="card" style={{ background: 'linear-gradient(135deg, rgba(193,128,255,0.06), rgba(133,173,255,0.04))' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#c180ff' }}>psychology</span>
+                <h3 style={{ fontFamily: 'Manrope', fontWeight: 700 }}>Idea Intelligence Deep Dive</h3>
+              </div>
+              <p style={{ fontSize: '0.88rem', lineHeight: 1.9, color: 'rgba(255,255,255,0.6)', margin: 0, whiteSpace: 'pre-line' }}>{ii.ai_narrative}</p>
+            </div>
+          )}
+
+          {/* Strengths & Risks */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#69f6b8' }}>trending_up</span>
+                <h4 style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: '0.92rem' }}>Top Strengths</h4>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(report.survival.strengths || []).map((s, i) => (
+                  <li key={i} style={{ display: 'flex', gap: 8, fontSize: '0.83rem', color: 'rgba(255,255,255,0.5)', alignItems: 'flex-start' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 13, color: '#69f6b8', flexShrink: 0, marginTop: 2 }}>check_circle</span>{s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#fbbf24' }}>warning</span>
+                <h4 style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: '0.92rem' }}>Key Risks</h4>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(report.survival.riskFactors || []).map((r, i) => (
+                  <li key={i} style={{ display: 'flex', gap: 8, fontSize: '0.83rem', color: 'rgba(255,255,255,0.5)', alignItems: 'flex-start' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 13, color: '#fbbf24', flexShrink: 0, marginTop: 2 }}>report</span>{r}
+                  </li>
+                ))}
+                {ii.risk_summary && (
+                  <li style={{ display: 'flex', gap: 8, fontSize: '0.83rem', color: 'rgba(255,180,36,0.7)', alignItems: 'flex-start', marginTop: 4, padding: '8px', background: 'rgba(251,191,36,0.06)', borderRadius: 8 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 13, color: '#fbbf24', flexShrink: 0, marginTop: 2 }}>priority_high</span>{ii.risk_summary}
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          {/* Metrics */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
+            {[
+              { v: report.activity.active, l: 'Active Cos', sub: report.activity.category, c: '#69f6b8' },
+              { v: `₹${report.location.rent}`, l: 'Rent/sqft', sub: report.location.recommended?.split('(')[0], c: '#85adff' },
+              { v: `${report.demand.cagr}%`, l: '5-Yr CAGR', sub: 'Demand Forecast', c: '#fbbf24' },
+              { v: `${Math.round(report.survival.probability)}%`, l: 'Survival', sub: '3-Year Probability', c: '#c180ff' },
+            ].map(({ v, l, sub, c }) => (
+              <div key={l} style={{ padding: '18px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, textAlign: 'center' }}>
+                <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: '1.6rem', color: c, lineHeight: 1 }}>{v}</div>
+                <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.65rem', fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '6px 0 4px' }}>{l}</div>
+                <div style={{ fontFamily: 'Inter', fontSize: '0.7rem', color: 'rgba(255,255,255,0.25)' }}>{sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Investors */}
+          {report.investors.length > 0 && (
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#69f6b8' }}>payments</span>
+                <h3 style={{ fontFamily: 'Manrope', fontWeight: 700 }}>Matched Investors</h3>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {report.investors.map((inv, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'white', marginBottom: 3 }}>{inv.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)' }}>{inv.focus} · {inv.stage} · {inv.cheque}</div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: '1.1rem', color: inv.score >= 80 ? '#69f6b8' : '#fbbf24' }}>{inv.score}%</div>
+                      <div style={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.25)', fontFamily: 'Space Grotesk', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Match</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Navigate to dashboard with context */}
+          <div style={{ padding: '18px 22px', background: 'rgba(133,173,255,0.05)', border: '1px solid rgba(133,173,255,0.15)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+            <div>
+              <div style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: '0.95rem', marginBottom: 4 }}>Your analysis is live in the Dashboard</div>
+              <div style={{ fontFamily: 'Inter', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>All modules now show data tailored to your {report.city} · {report.sector} idea</div>
+            </div>
+            <Link to="/dashboard" style={{ padding: '10px 20px', borderRadius: 99, background: 'rgba(133,173,255,0.15)', border: '1px solid rgba(133,173,255,0.3)', color: '#85adff', fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>dashboard</span>
+              Open Dashboard
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   )
 }
-
-export default AdvisorPage

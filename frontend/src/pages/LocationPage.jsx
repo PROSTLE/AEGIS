@@ -1,132 +1,109 @@
-import React, { useState } from 'react'
-
-const LOCATION_DATA = {
-  Jaipur: {
-    sector: 'Manufacturing',
-    zones: [
-      {
-        name: 'Sitapura Industrial Area',
-        score: 84,
-        rent: 22,
-        zoning: 'Industrial',
-        highway: 'NH-48 (2km)',
-        supplierProximity: 'High — MSME cluster nearby',
-        talentAccess: 'Moderate — ITI colleges within 8km',
-        pros: ['Direct NH-48 access', 'RIICO industrial plots available', 'Power substation on-site'],
-        cons: ['Water supply intermittent', 'Limited food options for workers'],
-        recommended: true,
-      },
-      {
-        name: 'Boranada Industrial Zone',
-        score: 76,
-        rent: 18,
-        zoning: 'Industrial',
-        highway: 'NH-11 (5km)',
-        supplierProximity: 'Moderate — textile suppliers nearby',
-        talentAccess: 'High — proximity to ITI colleges',
-        pros: ['Lower land cost', 'Good labour pool', 'Near textile base'],
-        cons: ['Flood risk in monsoon', 'Older infrastructure'],
-        recommended: false,
-      },
-      {
-        name: 'Kukas Industrial Area',
-        score: 71,
-        rent: 25,
-        zoning: 'Industrial / SEZ',
-        highway: 'NH-48 (12km)',
-        supplierProximity: 'Low — distance from MSME clusters',
-        talentAccess: 'Moderate',
-        pros: ['Modern infrastructure', 'Near Delhi-Mumbai corridor'],
-        cons: ['Higher rent', 'Far from supplier clusters'],
-        recommended: false,
-      },
-    ],
-  },
-  Ahmedabad: {
-    sector: 'Manufacturing',
-    zones: [
-      {
-        name: 'Vatva GIDC',
-        score: 91,
-        rent: 29,
-        zoning: 'Industrial',
-        highway: 'NH-48 (3km)',
-        supplierProximity: 'Very High — chemical & textile clusters',
-        talentAccess: 'High',
-        pros: ['Established industrial estate', 'Near Mundra port corridor', 'Strong MSME network'],
-        cons: ['High pollution zone', 'Rising property costs'],
-        recommended: true,
-      },
-    ],
-  },
-}
+import React, { useState, useEffect } from 'react'
+import { locationApi } from '../services/api'
+import { useAppStore } from '../context/appStore'
+import { INDIAN_CITIES } from '../utils/constants'
 
 function LocationPage() {
-  const [city, setCity] = useState('Jaipur')
-  const data = LOCATION_DATA[city] || LOCATION_DATA['Jaipur']
+  const store = useAppStore()
+  const defaultCity = store.dashboardCity || 'Bangalore'
+  const [city, setCity] = useState(defaultCity)
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    locationApi.get(city)
+      .then(res => {
+        if (active) {
+          setData(res)
+          setLoading(false)
+        }
+      })
+      .catch(err => {
+        console.error("Location API err:", err)
+        setLoading(false)
+      })
+    return () => { active = false }
+  }, [city])
+
+  const zoneColor = (score) => score >= 80 ? 'var(--secondary)' : score >= 65 ? '#fbbf24' : 'var(--error)'
+  const zoneRaw = (score) => score >= 80 ? '#69f6b8' : score >= 65 ? '#fbbf24' : '#ff6b6b'
 
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">📍 Location & Land Intelligence</h1>
+        <h1 className="page-title" style={{ fontFamily: 'Manrope', fontWeight: 800 }}>Location & Land Intelligence</h1>
         <div className="page-subtitle">Zone recommendations based on rent, zoning law, supplier proximity & talent access</div>
       </div>
 
       <div className="card" style={{ marginBottom: 24, padding: '14px 20px', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>City:</span>
-        {Object.keys(LOCATION_DATA).map(c => (
-          <button key={c} className={`btn btn-sm ${city === c ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setCity(c)} id={`loc-city-${c.toLowerCase()}`}>{c}</button>
-        ))}
+        <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.7rem', fontWeight: 700, color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.15em', marginRight: 4 }}>City:</span>
+        <select 
+          className="select" 
+          value={city} 
+          onChange={e => setCity(e.target.value)} 
+          style={{ background: 'var(--bg-surface-container)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', padding: '6px 12px', borderRadius: 'var(--radius-md)' }}
+        >
+          {INDIAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
       </div>
 
+      {!data || loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--on-surface-variant)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 32, animation: 'spin 1.5s linear infinite' }}>radar</span>
+          <p style={{ fontFamily: 'Space Grotesk', fontSize: '0.8rem', marginTop: 12, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Scanning Topography Data...</p>
+        </div>
+      ) : (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {data.zones.map((zone, i) => (
-          <div key={i} className="card" style={{
-            border: zone.recommended ? '1px solid rgba(59,130,246,0.4)' : '1px solid var(--border-color)',
-            background: zone.recommended ? 'linear-gradient(135deg, rgba(59,130,246,0.07), var(--bg-card))' : 'var(--bg-card)',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
+          <div key={i} className="card" style={{ border: zone.recommended ? `1px solid ${zoneRaw(zone.score)}30` : undefined, background: zone.recommended ? `rgba(133,173,255,0.04)` : undefined }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                  <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>{zone.name}</h3>
-                  {zone.recommended && <span className="badge badge-blue">⭐ Top Pick</span>}
-                  <span className="badge badge-cyan">{zone.zoning}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <h3 style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: '1.1rem', margin: 0 }}>{zone.name}</h3>
+                  {zone.recommended && (
+                    <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(133,173,255,0.12)', padding: '2px 10px', borderRadius: 99, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 12, fontVariationSettings: "'FILL' 1" }}>star</span>Top Pick
+                    </span>
+                  )}
+                  <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', color: 'var(--outline)', background: 'var(--bg-surface-container-highest)', padding: '2px 10px', borderRadius: 99 }}>{zone.zoning}</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>{zone.highway} · {zone.supplierProximity}</p>
+                <p style={{ margin: 0, fontFamily: 'Inter', fontSize: '0.82rem', color: 'var(--on-surface-variant)' }}>{zone.highway} · {zone.supplierProximity}</p>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'Outfit', color: zone.score >= 80 ? '#10b981' : '#f59e0b' }}>{zone.score}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Zone Score</div>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ fontFamily: 'Manrope', fontWeight: 800, fontSize: '2.5rem', color: zoneColor(zone.score), lineHeight: 1, letterSpacing: '-0.04em' }}>{zone.score}</div>
+                <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', color: 'var(--outline)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Zone Score</div>
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
               {[
-                { label: 'Rent', value: `₹${zone.rent}/sqft/mo` },
-                { label: 'Highway Access', value: zone.highway },
-                { label: 'Talent Access', value: zone.talentAccess },
+                { label: 'Rent', value: `₹${zone.rent}/sqft/mo`, icon: 'home' },
+                { label: 'Highway Access', value: zone.highway, icon: 'road' },
+                { label: 'Talent Access', value: zone.talentAccess, icon: 'groups' },
               ].map(item => (
-                <div key={item.label} style={{ background: 'var(--bg-secondary)', borderRadius: 8, padding: '10px 14px' }}>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>{item.label}</div>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>{item.value}</div>
+                <div key={item.label} style={{ background: 'var(--bg-surface-container)', borderRadius: 'var(--radius-lg)', padding: '12px 16px' }}>
+                  <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', color: 'var(--outline)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>{item.label}</div>
+                  <div style={{ fontFamily: 'Manrope', fontSize: '0.88rem', fontWeight: 700 }}>{item.value}</div>
                 </div>
               ))}
             </div>
 
-            <div className="grid-2">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
               <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981', textTransform: 'uppercase', marginBottom: 6, letterSpacing: '0.05em' }}>Pros</div>
+                <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', fontWeight: 700, color: 'var(--secondary)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>Strengths</div>
                 {zone.pros.map((p, j) => (
-                  <div key={j} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', padding: '3px 0', display: 'flex', gap: 6 }}>
-                    <span style={{ color: '#10b981' }}>✓</span>{p}
+                  <div key={j} style={{ fontFamily: 'Inter', fontSize: '0.82rem', color: 'var(--on-surface-variant)', padding: '3px 0', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--secondary)', flexShrink: 0, marginTop: 1 }}>check_circle</span>{p}
                   </div>
                 ))}
               </div>
               <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', marginBottom: 6, letterSpacing: '0.05em' }}>Cons</div>
+                <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>Considerations</div>
                 {zone.cons.map((c, j) => (
-                  <div key={j} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', padding: '3px 0', display: 'flex', gap: 6 }}>
-                    <span style={{ color: '#f59e0b' }}>!</span>{c}
+                  <div key={j} style={{ fontFamily: 'Inter', fontSize: '0.82rem', color: 'var(--on-surface-variant)', padding: '3px 0', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: '#fbbf24', flexShrink: 0, marginTop: 1 }}>warning</span>{c}
                   </div>
                 ))}
               </div>
@@ -134,6 +111,7 @@ function LocationPage() {
           </div>
         ))}
       </div>
+      )}
     </div>
   )
 }

@@ -1,44 +1,45 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 
 function Navbar() {
-  const [time] = useState(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }))
-
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        {/* Brand */}
+        {/* Brand (visible on mobile only) */}
         <Link to="/" className="navbar-brand">
-          <div className="brand-logo">⚡</div>
-          <div>
-            <div className="brand-name">AEGIS</div>
-            <div className="brand-tagline">India Startup Intelligence</div>
+          <div className="brand-logo">
+            <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>shield_with_heart</span>
           </div>
+          <div className="brand-name">AEGIS</div>
         </Link>
 
-        {/* Center Badge */}
-        <div className="navbar-center">
-          <div className="navbar-badge">
-            <span className="dot-live" style={{ width: 7, height: 7, display: 'inline-block' }}></span>
-            Live Data · 50+ Indian Cities
-          </div>
+        {/* Search Bar */}
+        <div className="navbar-search">
+          <input
+            type="text"
+            placeholder="Search cities (e.g. Jaipur, Pune)..."
+            id="navbar-search-input"
+          />
+          <span className="search-icon material-symbols-outlined">search</span>
         </div>
 
         {/* Right Actions */}
         <div className="navbar-actions">
-          <div className="navbar-stat">
-            <span className="navbar-stat-value">74/100</span>
-            <span className="navbar-stat-label">Last Score</span>
-          </div>
-          <div className="navbar-divider"></div>
-          <div className="navbar-stat">
-            <span className="navbar-stat-value">{time} IST</span>
-            <span className="navbar-stat-label">Local Time</span>
-          </div>
-          <div className="navbar-divider"></div>
-          <Link to="/advisor" className="btn btn-primary btn-sm" id="get-report-btn">
-            Get Report
+          <Link to="/advisor" className="navbar-upgrade-btn" id="get-report-btn" style={{
+            background: 'rgba(193, 128, 255, 0.12)',
+            color: '#c180ff',
+            border: '1px solid rgba(193, 128, 255, 0.25)',
+            boxShadow: '0 0 15px rgba(193, 128, 255, 0.1)',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>auto_awesome</span>
+            AI Guide
           </Link>
+          <div className="navbar-user-section">
+            <div className="navbar-avatar">
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person</span>
+            </div>
+          </div>
         </div>
       </div>
     </nav>

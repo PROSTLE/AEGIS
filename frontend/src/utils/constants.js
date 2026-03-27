@@ -1,8 +1,12 @@
 export const INDIAN_CITIES = [
-  'Bangalore', 'Delhi', 'Mumbai', 'Pune', 'Hyderabad',
-  'Chennai', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Coimbatore',
-  'Kochi', 'Chandigarh', 'Indore', 'Nagpur', 'Vadodara'
-]
+  'Amaravati', 'Visakhapatnam', 'Itanagar', 'Naharlagun', 'Guwahati', 'Dibrugarh', 'Patna', 'Begusarai',
+  'Raipur', 'Bhilai', 'Panaji', 'Vasco da Gama', 'Gandhinagar', 'Surat', 'Ahmedabad', 'Chandigarh',
+  'Faridabad', 'Shimla', 'Baddi', 'Ranchi', 'Jamshedpur', 'Bangalore', 'Hubli', 'Thiruvananthapuram',
+  'Kochi', 'Bhopal', 'Indore', 'Mumbai', 'Nagpur', 'Pune', 'Imphal', 'Churachandpur', 'Shillong', 'Tura',
+  'Aizawl', 'Lunglei', 'Kohima', 'Dimapur', 'Bhubaneswar', 'Rourkela', 'Ludhiana', 'Jaipur', 'Jodhpur',
+  'Gangtok', 'Namchi', 'Chennai', 'Coimbatore', 'Hyderabad', 'Warangal', 'Agartala', 'Dharmanagar',
+  'Lucknow', 'Kanpur', 'Dehradun', 'Rudrapur', 'Kolkata', 'Haldia', 'Delhi'
+].sort()
 
 export const SECTORS = [
   'Fintech',

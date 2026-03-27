@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AEGIS | Sovereign Intelligence Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@300;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "tertiary-fixed-dim": "#c488ff",
+                "on-primary-fixed-variant": "#002a62",
+                "tertiary-container": "#af5cfe",
+                "on-tertiary": "#33005b",
+                "on-secondary-container": "#e1ffec",
+                "tertiary-dim": "#9c48ea",
+                "surface-container": "#1a1919",
+                "on-error": "#490006",
+                "background": "#0e0e0e",
+                "on-tertiary-fixed": "#270048",
+                "surface-container-high": "#201f1f",
+                "surface-bright": "#2c2c2c",
+                "inverse-surface": "#fcf8f8",
+                "on-primary-container": "#002150",
+                "secondary-container": "#006c49",
+                "error": "#ff716c",
+                "outline-variant": "#494847",
+                "tertiary": "#c180ff",
+                "on-secondary": "#005a3c",
+                "error-dim": "#d7383b",
+                "on-secondary-fixed-variant": "#006544",
+                "on-secondary-fixed": "#00452d",
+                "primary-container": "#6e9fff",
+                "surface-dim": "#0e0e0e",
+                "tertiary-fixed": "#ce9bff",
+                "primary": "#85adff",
+                "surface": "#0e0e0e",
+                "secondary-dim": "#58e7ab",
+                "secondary": "#69f6b8",
+                "error-container": "#9f0519",
+                "primary-fixed-dim": "#5391ff",
+                "on-background": "#ffffff",
+                "surface-container-low": "#131313",
+                "inverse-primary": "#005bc4",
+                "primary-dim": "#699cff",
+                "surface-container-highest": "#262626",
+                "outline": "#777575",
+                "on-primary": "#002c66",
+                "on-error-container": "#ffa8a3",
+                "on-surface": "#ffffff",
+                "surface-variant": "#262626",
+                "secondary-fixed-dim": "#58e7ab",
+                "on-tertiary-fixed-variant": "#560094",
+                "on-tertiary-container": "#000000",
+                "on-surface-variant": "#adaaaa",
+                "primary-fixed": "#6e9fff",
+                "surface-container-lowest": "#000000",
+                "inverse-on-surface": "#565554",
+                "secondary-fixed": "#69f6b8",
+                "on-primary-fixed": "#000000",
+                "surface-tint": "#85adff"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Space Grotesk"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        body { background-color: #0e0e0e; color: white; font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glow-sm { box-shadow: 0 0 15px rgba(133, 173, 255, 0.15); }
+        .glow-primary { box-shadow: 0 0 30px rgba(133, 173, 255, 0.1); }
+        .glass-card { backdrop-filter: blur(12px); background: rgba(26, 25, 25, 0.6); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0e0e0e; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col h-screen w-64 border-r border-white/5 bg-[#0e0e0e] shadow-[20px_0_50px_rgba(0,0,0,0.5)] z-50">
+<div class="p-8">
+<h1 class="text-2xl font-bold tracking-tighter text-[#85adff] font-headline">Sovereign AI</h1>
+<p class="text-[10px] font-label tracking-widest uppercase opacity-40 mt-1">Intelligence Engine</p>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+<div class="text-[10px] font-label font-bold text-on-surface-variant/40 px-4 mb-4 uppercase tracking-widest">Main Modules</div>
+<a class="flex items-center gap-3 px-4 py-3 text-[#85adff] bg-[#85adff]/10 rounded-r-full border-l-4 border-[#85adff] group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 transition-colors group hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-body text-sm font-medium">Heatmap</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 transition-colors group hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-body text-sm font-medium">Survival AI</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 transition-colors group hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-body text-sm font-medium">Logistics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 transition-colors group hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-body text-sm font-medium">Workforce</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 transition-colors group hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+<span class="font-body text-sm font-medium">Location</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 transition-colors group hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-body text-sm font-medium">Activity</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 transition-colors group hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-body text-sm font-medium">Demand</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 transition-colors group hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body text-sm font-medium">Investors</span>
+</a>
+</nav>
+<div class="p-6 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-tertiary/10 text-tertiary rounded-xl font-label text-sm font-bold border border-tertiary/20 hover:bg-tertiary/20 transition-all glow-sm">
+<span class="material-symbols-outlined text-sm" data-icon="auto_awesome">auto_awesome</span>
+                AI Guide
+            </button>
+<div class="mt-6 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-2 text-gray-500 hover:text-gray-300 transition-colors text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-gray-500 hover:text-gray-300 transition-colors text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-[#0e0e0e]/80 backdrop-blur-xl flex justify-between items-center px-8">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-highest border-none rounded-full py-2 pl-12 pr-4 text-sm font-body focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-on-surface-variant/40" placeholder="Search cities (e.g. Jaipur, Pune)..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-on-surface-variant/80">
+<button class="p-2 hover:bg-white/5 rounded-full transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-background"></span>
+</button>
+<button class="p-2 hover:bg-white/5 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+</button>
+</div>
+<button class="px-5 py-1.5 bg-primary text-on-primary rounded-full font-label font-bold text-sm hover:opacity-90 transition-opacity">
+                    Upgrade
+                </button>
+<div class="flex items-center gap-3 pl-4 border-l border-white/10">
+<img alt="User Profile" class="w-8 h-8 rounded-full bg-surface-container-highest object-cover" data-alt="close-up portrait of a professional woman with a clean minimal background, professional lighting, corporate profile style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqr7xDuGWKll_cVRtGST15I1WM-38SInrUWFumu5xhvWoFMWgsmG_HTPDMjDg9dYhxB00tXfAOwOIgOivfPlAxGWwYUB3vNMxhzTXmDQLNeHAdP8pdoX3Oi4xUqU-B_kgRkgVFJTgCnOFfDVBvLvA4FYnD74gltHbNiIp2z0UG-XMST6xi2WC4eYQX-CwhLo05SqZDcQ2Gn2muGYqtVx030f9tRAJiEo7aOfd6CYB40S_i-_BTtR3MdwRol29Z0oGsk2ABqcNRPitb"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-10 max-w-[1400px] mx-auto w-full space-y-12">
+<!-- AI Advisor Intelligence Card -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container-low p-6 flex items-start gap-6 border border-tertiary/10 glow-sm">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-tertiary/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-3xl" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-tertiary text-lg">AI Advisor Intelligence</h3>
+<p class="font-body text-on-surface-variant mt-1 leading-relaxed max-w-3xl">
+                        Jaipur's ecosystem health is trending upward (+4.2%). The recent influx of Tier-2 logistics infrastructure makes it a prime candidate for D2C expansion. Recommend focusing on the <span class="text-secondary font-semibold">Mansarovar Industrial cluster</span> for immediate workforce scaling.
+                    </p>
+</div>
+<div class="ml-auto flex items-center gap-2 bg-background/40 px-3 py-1.5 rounded-full self-start border border-white/5">
+<div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+<span class="text-[10px] font-label font-bold tracking-widest uppercase">Live Analysis</span>
+</div>
+</section>
+<!-- Hero: Launch Readiness Score -->
+<section class="text-center relative py-12">
+<div class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent blur-3xl rounded-full"></div>
+<h2 class="font-label text-on-surface-variant uppercase tracking-[0.3em] text-xs font-bold mb-4">Market Readiness Analysis</h2>
+<div class="inline-flex items-baseline gap-2">
+<span class="font-headline text-8xl md:text-9xl font-extrabold tracking-tighter text-white">84</span>
+<span class="font-headline text-4xl md:text-5xl font-bold text-primary opacity-60">/100</span>
+</div>
+<div class="mt-6">
+<h1 class="font-headline text-4xl font-bold">Jaipur, Rajasthan</h1>
+<p class="font-body text-on-surface-variant/60 mt-2 max-w-lg mx-auto">Sovereign Index calculates 142 data vectors to determine optimal operational windows.</p>
+</div>
+<div class="mt-8 flex justify-center gap-4">
+<div class="px-4 py-2 bg-surface-container rounded-full border border-white/5 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="trending_up">trending_up</span>
+<span class="font-label text-xs font-bold">+12% vs last Q</span>
+</div>
+</div>
+</section>
+<!-- Top 4 Modules Grid -->
+<section class="space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Card 1: Ecosystem Score -->
+<div class="group p-8 rounded-xl bg-surface-container-low transition-all duration-500 hover:bg-surface-container-high relative overflow-hidden">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest">Global Ranking</span>
+<h3 class="font-headline text-2xl font-bold mt-1">Ecosystem Score</h3>
+</div>
+<span class="material-symbols-outlined text-primary text-3xl opacity-40 group-hover:opacity-100 transition-opacity" data-icon="hub">hub</span>
+</div>
+<div class="flex items-end gap-3">
+<span class="font-headline text-6xl font-extrabold text-white">92</span>
+<div class="mb-2">
+<span class="font-label text-secondary font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="arrow_upward">arrow_upward</span>
+                                    Strong
+                                </span>
+</div>
+</div>
+<div class="mt-8 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[92%] shadow-[0_0_10px_#85adff]"></div>
+</div>
+</div>
+<!-- Card 2: Survival AI -->
+<div class="group p-8 rounded-xl bg-surface-container-low transition-all duration-500 hover:bg-surface-container-high relative overflow-hidden">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest">Prediction Engine</span>
+<h3 class="font-headline text-2xl font-bold mt-1">Survival AI</h3>
+</div>
+<span class="material-symbols-outlined text-tertiary text-3xl opacity-40 group-hover:opacity-100 transition-opacity" data-icon="psychology">psychology</span>
+</div>
+<div class="flex items-end gap-3">
+<span class="font-headline text-6xl font-extrabold text-white">85</span>
+<div class="mb-2">
+<span class="font-label text-tertiary font-bold text-sm">Targeting</span>
+</div>
+</div>
+<div class="mt-8 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[85%] shadow-[0_0_10px_#c180ff]"></div>
+</div>
+</div>
+<!-- Card 3: Logistics Score -->
+<div class="group p-8 rounded-xl bg-surface-container-low transition-all duration-500 hover:bg-surface-container-high relative overflow-hidden">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest">Network Flow</span>
+<h3 class="font-headline text-2xl font-bold mt-1">Logistics Score</h3>
+</div>
+<span class="material-symbols-outlined text-primary text-3xl opacity-40 group-hover:opacity-100 transition-opacity" data-icon="local_shipping">local_shipping</span>
+</div>
+<div class="flex items-end gap-3">
+<span class="font-headline text-6xl font-extrabold text-white">76</span>
+<div class="mb-2">
+<span class="font-label text-on-surface-variant font-bold text-sm">Stable</span>
+</div>
+</div>
+<div class="mt-8 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary/60 w-[76%]"></div>
+</div>
+</div>
+<!-- Card 4: Workforce Score -->
+<div class="group p-8 rounded-xl bg-surface-container-low transition-all duration-500 hover:bg-surface-container-high relative overflow-hidden">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest">Talent Density</span>
+<h3 class="font-headline text-2xl font-bold mt-1">Workforce Score</h3>
+</div>
+<span class="material-symbols-outlined text-secondary text-3xl opacity-40 group-hover:opacity-100 transition-opacity" data-icon="groups">groups</span>
+</div>
+<div class="flex items-end gap-3">
+<span class="font-headline text-6xl font-extrabold text-white">94</span>
+<div class="mb-2">
+<span class="font-label text-secondary font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    Elite
+                                </span>
+</div>
+</div>
+<div class="mt-8 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[94%] shadow-[0_0_10px_#69f6b8]"></div>
+</div>
+</div>
+</div>
+<!-- More Modules Action -->
+<div class="flex justify-center pt-8">
+<button class="group flex items-center gap-3 px-8 py-4 bg-surface-container-highest/50 hover:bg-surface-container-highest rounded-full border border-white/5 transition-all">
+<span class="font-label text-sm font-bold tracking-widest uppercase text-on-surface-variant group-hover:text-white">View All Modules</span>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Bottom Data Layers (Asymmetric Layout) -->
+<section class="grid grid-cols-12 gap-8">
+<div class="col-span-12 lg:col-span-8 space-y-8">
+<div class="bg-surface-container-low rounded-xl p-8 border border-white/5">
+<div class="flex justify-between items-center mb-10">
+<h3 class="font-headline text-xl font-bold">Heatmap Distribution</h3>
+<div class="flex gap-4">
+<span class="flex items-center gap-2 text-xs font-label text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-primary"></span> Demand</span>
+<span class="flex items-center gap-2 text-xs font-label text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-secondary"></span> Supply</span>
+</div>
+</div>
+<div class="h-[300px] w-full rounded-lg bg-background overflow-hidden relative group">
+<img class="w-full h-full object-cover opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="abstract satellite view of a metropolitan area with glowing blue and green data overlays showing density and movement patterns" data-location="Jaipur" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXZSOd4M2mzqCKChTpcDzOcjV2Ij1wZdFZGABsfh9eIiMNEk5cwt4hfON-VDSLhnByEgCeY-dP8YMv3otQMpZjBSHYkqqdNMZHYSyMx9ZYj1wOqd5KEtxwX629ItkuiaHNTi4qKMj-eUahk4EjOSP96n2QEfkN6R2HzFBYTZENHEylr0oRCIJgT39Q1yh1w349annN3umg0e--kG1pv0QiC06yQtBhqKzZdTZhsSyj7gBCFOiNHP1VrYLYjEUrHAAvT2cwsmX97Bml"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
+<div class="absolute bottom-6 left-6">
+<p class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest">Active Region</p>
+<p class="font-body text-sm">Industrial Area Phase II, Jaipur South</p>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-4 space-y-8">
+<div class="bg-surface-container-low rounded-xl p-8 border border-white/5 relative overflow-hidden group">
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl transition-all group-hover:bg-primary/20"></div>
+<h3 class="font-headline text-xl font-bold mb-6">Investor Interest</h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<span class="font-body text-sm text-on-surface-variant">Active VCs</span>
+<span class="font-label font-bold">14</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body text-sm text-on-surface-variant">Seed Deals (24h)</span>
+<span class="font-label font-bold text-secondary">3</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body text-sm text-on-surface-variant">Average Ticket</span>
+<span class="font-label font-bold">$2.4M</span>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-white/5">
+<p class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-4">Top Sector</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container-highest rounded text-xs font-label">FinTech</span>
+<span class="px-3 py-1 bg-surface-container-highest rounded text-xs font-label">Logistics</span>
+<span class="px-3 py-1 bg-surface-container-highest rounded text-xs font-label">AgriTech</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer / Bottom Space -->
+<footer class="mt-auto py-12 px-10 border-t border-white/5 opacity-40">
+<div class="flex justify-between items-center">
+<p class="font-label text-[10px] tracking-widest uppercase">AEGIS Sovereign Intelligence v2.4.0</p>
+<div class="flex gap-8">
+<a class="font-label text-[10px] tracking-widest uppercase hover:text-white transition-colors" href="#">Documentation</a>
+<a class="font-label text-[10px] tracking-widest uppercase hover:text-white transition-colors" href="#">API Access</a>
+<a class="font-label text-[10px] tracking-widest uppercase hover:text-white transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

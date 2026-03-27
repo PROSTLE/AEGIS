@@ -41,20 +41,20 @@ function MatchmakingPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">🤝 Investor-Founder Matchmaking</h1>
+        <h1 className="page-title" style={{ fontFamily: 'Manrope', fontWeight: 800 }}>Investor Matchmaking</h1>
         <div className="page-subtitle">
           Cosine similarity matching against 300+ verified Indian investors · TF-IDF encoded profiles
-          <span className="badge badge-green">300+ VCs</span>
+          <span className="badge badge-green" style={{ marginLeft: 12 }}>300+ VCs</span>
         </div>
       </div>
 
       {/* Filters */}
       <div className="card" style={{ marginBottom: 24 }}>
-        <div className="section-title" style={{ marginBottom: 16 }}>
-          <div className="section-title-icon">🔍</div>
-          Match Parameters
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary)' }}>tune</span>
+          <span style={{ fontFamily: 'Manrope', fontWeight: 700 }}>Match Parameters</span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 20 }}>
           <div className="form-group" style={{ margin: 0 }}>
             <label>Your City</label>
             <select value={city} onChange={e => setCity(e.target.value)} id="mm-city">{INDIAN_CITIES.map(c => <option key={c}>{c}</option>)}</select>
@@ -71,60 +71,60 @@ function MatchmakingPage() {
           </div>
         </div>
         <button className="btn btn-primary" onClick={match} disabled={loading} id="mm-match-btn">
-          {loading ? <><div className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> Matching…</> : '🤝 Find Matching Investors'}
+          {loading ? <><div className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> Matching…</> : 'Find Matching Investors'}
         </button>
       </div>
 
       {/* Results */}
       {results && (
         <div>
-          <div className="section-header" style={{ marginBottom: 16 }}>
-            <div className="section-title">
-              <div className="section-title-icon">📋</div>
-              {results.length} Matched Investors · Ranked by Compatibility
-            </div>
-            <span className="badge badge-blue">{city} · {sector} · {stage}</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <h3 style={{ fontFamily: 'Manrope', fontWeight: 700 }}>{results.length} Investors · Ranked by Compatibility</h3>
+            <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.65rem', color: 'var(--outline)', background: 'var(--bg-surface-container)', padding: '4px 12px', borderRadius: 99 }}>{city} · {sector} · {stage}</span>
           </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {results.map((inv, i) => {
-              const scoreColor = inv.score >= 80 ? '#10b981' : inv.score >= 65 ? '#f59e0b' : '#6b7280'
+              const scoreColor = inv.score >= 80 ? 'var(--secondary)' : inv.score >= 65 ? '#fbbf24' : 'var(--outline)'
+              const scoreBg = inv.score >= 80 ? 'rgba(105,246,184,0.1)' : inv.score >= 65 ? 'rgba(251,191,36,0.1)' : 'var(--bg-surface-container)'
               return (
                 <div key={i} className="card" style={{
-                  display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap',
-                  border: i === 0 ? '1px solid rgba(59,130,246,0.4)' : 'var(--border-color)',
-                  background: i === 0 ? 'linear-gradient(135deg, rgba(59,130,246,0.07), var(--bg-card))' : 'var(--bg-card)',
+                  display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap',
+                  border: i === 0 ? '1px solid rgba(133,173,255,0.25)' : undefined,
+                  background: i === 0 ? 'rgba(133,173,255,0.04)' : undefined,
                 }}>
                   {/* Rank */}
                   <div style={{
-                    width: 32, height: 32, flexShrink: 0,
-                    background: i === 0 ? 'linear-gradient(135deg, #3b82f6, #8b5cf6)' : 'var(--bg-secondary)',
-                    borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 800, fontSize: '0.85rem', color: i < 3 ? 'white' : 'var(--text-muted)',
+                    width: 36, height: 36, flexShrink: 0, borderRadius: 10,
+                    background: i === 0 ? 'var(--primary)' : 'var(--bg-surface-container-highest)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: '0.85rem',
+                    color: i === 0 ? '#0e0e0e' : 'var(--outline)',
                   }}>#{i + 1}</div>
 
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{inv.name}</span>
-                      <span className="badge badge-purple" style={{ fontSize: '0.65rem' }}>{inv.tier}</span>
-                      {inv.overexposed && <span className="badge badge-red" style={{ fontSize: '0.65rem' }}>⚠️ Overexposed</span>}
-                      {i === 0 && <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>⭐ Best Match</span>}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, flexWrap: 'wrap' }}>
+                      <span style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: '0.95rem' }}>{inv.name}</span>
+                      <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.55rem', fontWeight: 700, color: 'var(--tertiary)', background: 'rgba(193,128,255,0.1)', padding: '2px 8px', borderRadius: 99, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{inv.tier}</span>
+                      {inv.overexposed && <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.55rem', fontWeight: 700, color: 'var(--error)', background: 'rgba(255,107,107,0.1)', padding: '2px 8px', borderRadius: 99, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Overexposed</span>}
+                      {i === 0 && <span style={{ fontFamily: 'Space Grotesk', fontSize: '0.55rem', fontWeight: 700, color: 'var(--primary)', background: 'rgba(133,173,255,0.1)', padding: '2px 8px', borderRadius: 99, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Best Match</span>}
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                      {inv.focus.join(' · ')} &nbsp;|&nbsp; {inv.stage} &nbsp;|&nbsp; {inv.cheque}
+                    <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.72rem', color: 'var(--on-surface-variant)' }}>
+                      {inv.focus.join(' · ')} &nbsp;·&nbsp; {inv.stage} &nbsp;·&nbsp; {inv.cheque}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                    <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.68rem', color: 'var(--outline)', marginTop: 3 }}>
                       Cities: {inv.cities.join(', ')}
                     </div>
                   </div>
 
                   {/* Score */}
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 800, fontSize: '1.5rem', color: scoreColor, lineHeight: 1 }}>{Math.min(inv.score, 99)}%</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 2 }}>Compatibility</div>
-                    <div className="progress-bar" style={{ marginTop: 6, width: 80 }}>
-                      <div className="progress-fill" style={{ width: `${Math.min(inv.score, 99)}%`, background: scoreColor }} />
+                    <div style={{ padding: '6px 14px', borderRadius: 'var(--radius-full)', background: scoreBg, marginBottom: 6 }}>
+                      <span style={{ fontFamily: 'Manrope', fontWeight: 800, fontSize: '1.4rem', color: scoreColor, lineHeight: 1 }}>{Math.min(inv.score, 99)}%</span>
+                    </div>
+                    <div style={{ fontFamily: 'Space Grotesk', fontSize: '0.6rem', color: 'var(--outline)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Compatibility</div>
+                    <div style={{ marginTop: 6, width: 80, height: 3, background: 'rgba(255,255,255,0.05)', borderRadius: 99, marginLeft: 'auto' }}>
+                      <div style={{ height: '100%', width: `${Math.min(inv.score, 99)}%`, background: scoreColor, borderRadius: 99 }} />
                     </div>
                   </div>
                 </div>
@@ -135,9 +135,9 @@ function MatchmakingPage() {
       )}
 
       {!results && !loading && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300, gap: 12, color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: '3.5rem' }}>🤝</div>
-          <p>Set your parameters above and click "Find Matching Investors" to get curated VC matches.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300, gap: 12, color: 'var(--outline)' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 64, opacity: 0.2 }}>payments</span>
+          <p style={{ fontFamily: 'Inter', fontSize: '0.9rem' }}>Set your parameters above and click "Find Matching Investors" to get curated VC matches.</p>
         </div>
       )}
     </div>

@@ -6,9 +6,9 @@ import '../../styles/layout.css'
 function Layout({ children }) {
   return (
     <div className="layout">
+      <Sidebar />
       <Navbar />
       <div className="layout-body">
-        <Sidebar />
         <main className="main-content">
           {children}
         </main>

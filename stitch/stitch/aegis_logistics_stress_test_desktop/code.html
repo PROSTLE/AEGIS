@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AEGIS Logistics Stress Test | Sovereign Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;700;800&amp;family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@300;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-primary-container": "#002150",
+                "on-secondary-fixed-variant": "#006544",
+                "on-background": "#ffffff",
+                "surface-tint": "#85adff",
+                "primary-container": "#6e9fff",
+                "background": "#0e0e0e",
+                "on-surface-variant": "#adaaaa",
+                "surface-container-lowest": "#000000",
+                "secondary-fixed-dim": "#58e7ab",
+                "secondary-fixed": "#69f6b8",
+                "surface-container": "#1a1919",
+                "on-error-container": "#ffa8a3",
+                "surface-container-highest": "#262626",
+                "inverse-primary": "#005bc4",
+                "inverse-on-surface": "#565554",
+                "on-secondary": "#005a3c",
+                "on-primary-fixed-variant": "#002a62",
+                "on-tertiary-fixed": "#270048",
+                "surface-variant": "#262626",
+                "surface-container-high": "#201f1f",
+                "surface-dim": "#0e0e0e",
+                "error-dim": "#d7383b",
+                "on-secondary-fixed": "#00452d",
+                "on-tertiary": "#33005b",
+                "tertiary": "#c180ff",
+                "on-tertiary-fixed-variant": "#560094",
+                "inverse-surface": "#fcf8f8",
+                "tertiary-container": "#af5cfe",
+                "on-error": "#490006",
+                "on-tertiary-container": "#000000",
+                "on-secondary-container": "#e1ffec",
+                "tertiary-fixed": "#ce9bff",
+                "primary-dim": "#699cff",
+                "outline": "#777575",
+                "secondary": "#69f6b8",
+                "secondary-dim": "#58e7ab",
+                "surface-bright": "#2c2c2c",
+                "on-surface": "#ffffff",
+                "error-container": "#9f0519",
+                "primary-fixed": "#6e9fff",
+                "primary": "#85adff",
+                "on-primary-fixed": "#000000",
+                "primary-fixed-dim": "#5391ff",
+                "on-primary": "#002c66",
+                "tertiary-fixed-dim": "#c488ff",
+                "outline-variant": "#494847",
+                "secondary-container": "#006c49",
+                "surface-container-low": "#131313",
+                "error": "#ff716c",
+                "surface": "#0e0e0e",
+                "tertiary-dim": "#9c48ea"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Space Grotesk"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(26, 25, 25, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(133, 173, 255, 0.1);
+        }
+        .neon-glow-blue {
+            box-shadow: 0 0 20px rgba(133, 173, 255, 0.15);
+        }
+        .pulse-secondary {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+      </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar from Shared Components JSON -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col h-screen w-64 border-r border-[#1a1a1a] bg-[#0e0e0e] font-['Manrope'] tracking-tight shadow-[0_0_32px_rgba(0,0,0,0.8)]">
+<div class="p-8 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center neon-glow-blue">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div>
+<h1 class="text-2xl font-black text-[#85adff] tracking-tighter">Sovereign</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Intelligence Engine</p>
+</div>
+</div>
+<nav class="flex-1 mt-4">
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-[#1a1a1a] hover:text-[#85adff] transition-all duration-300" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-medium">Intelligence</span>
+</a>
+<a class="flex items-center gap-4 bg-[#85adff]/10 text-[#85adff] border-r-2 border-[#85adff] px-6 py-4 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+<span class="font-medium">Logistics</span>
+</a>
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-[#1a1a1a] hover:text-[#85adff] transition-all duration-300" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-medium">Map View</span>
+</a>
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-[#1a1a1a] hover:text-[#85adff] transition-all duration-300" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-medium">Analytics</span>
+</a>
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-[#1a1a1a] hover:text-[#85adff] transition-all duration-300" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-medium">Strategy</span>
+</a>
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-[#1a1a1a] hover:text-[#85adff] transition-all duration-300" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-6">
+<button class="w-full bg-[#c180ff]/10 text-[#c180ff] border border-[#c180ff]/20 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#c180ff]/20 transition-all shadow-[0_0_15px_rgba(193,128,255,0.1)]">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                AI Guide
+            </button>
+<div class="mt-8 pt-6 border-t border-white/5">
+<a class="flex items-center gap-4 text-slate-500 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- TopNavBar from Shared Components JSON -->
+<header class="fixed top-0 right-0 left-64 h-16 flex justify-between items-center px-8 z-30 bg-[#0e0e0e]/80 backdrop-blur-xl font-['Inter'] font-medium">
+<div class="flex items-center gap-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
+<input class="bg-surface-container-highest/50 border-none rounded-full py-2 pl-10 pr-6 text-sm w-80 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-slate-600" placeholder="Search logistics network..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-400">
+<span class="material-symbols-outlined cursor-pointer hover:text-white transition-colors">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-white transition-colors">grid_view</span>
+</div>
+<div class="flex items-center gap-3 pl-6 border-l border-white/5">
+<div class="text-right">
+<p class="text-xs font-bold text-white leading-none">Admin Sovereign</p>
+<p class="text-[10px] text-slate-500">System Overseer</p>
+</div>
+<img alt="Administrator Profile" class="w-8 h-8 rounded-full border border-primary/20" data-alt="close-up portrait of a professional man in a dark minimalist studio with dramatic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkKK3H5r8VG4AsXBG6JIXMBgumCajUVd5ZN-5Xi8RrlEmaaNZd_Le9F0g-5KZkXHk-_v6lf_7WaCkLt1UA7Sej4FqJbgX8W4SPIH3XuPjc6mwD8Kmo39oxH6tEb4E6mbx2usG4-BwEsAxi1KSVUP5rnagsVL4D7_bow1H3ttmg3AU2RJYkBatlJAZ84x6XctaB7A6a9qLxGMzVTkgjJL1vDa4qvo-MzQXvSHIo0NNVY3KHQOqxqyDGgt2djPLO9HGIPhjOS93gtfki"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 p-12 min-h-screen">
+<!-- Header Section -->
+<section class="mb-12 flex justify-between items-end">
+<div>
+<h2 class="font-headline text-display-sm text-5xl font-extrabold tracking-tighter text-white mb-2">Logistics Stress Test</h2>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="pulse-secondary absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span class="text-secondary font-label text-xs font-bold tracking-widest uppercase">Live India Network</span>
+</div>
+<span class="text-slate-600">|</span>
+<span class="text-slate-400 font-label text-xs">ID: AEGIS-ST-992-BETA</span>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="bg-surface-container-high text-on-surface px-6 py-3 rounded-xl font-bold text-sm border border-outline-variant/10 hover:bg-surface-bright transition-all">Simulation Config</button>
+<button class="bg-primary text-on-primary-container px-6 py-3 rounded-xl font-bold text-sm hover:scale-[0.98] transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                    Execute Stress Test
+                </button>
+</div>
+</section>
+<!-- Hero Metrics Bento Grid -->
+<section class="grid grid-cols-12 gap-8 mb-12">
+<!-- Metric 1 -->
+<div class="col-span-4 bg-surface-container-low rounded-2xl p-8 glass-panel neon-glow-blue relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">schedule</span>
+</div>
+<p class="text-on-surface-variant font-label text-xs uppercase tracking-widest mb-4">Avg. Delivery Time</p>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline text-5xl font-extrabold text-primary">24.2</h3>
+<span class="text-primary-container font-label text-xl">min</span>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<div class="flex items-center gap-2 text-secondary font-bold text-sm">
+<span class="material-symbols-outlined text-sm">trending_down</span>
+<span>-4.2%</span>
+</div>
+<!-- Sparkline Placeholder SVG -->
+<svg class="w-32 h-8 text-primary/40" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 100 30">
+<path d="M0 25 C 20 25, 30 5, 50 15 S 80 10, 100 20" stroke-linecap="round"></path>
+</svg>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="col-span-4 bg-surface-container-low rounded-2xl p-8 glass-panel relative overflow-hidden group">
+<p class="text-on-surface-variant font-label text-xs uppercase tracking-widest mb-4">Fuel Efficiency Index</p>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline text-5xl font-extrabold text-white">92</h3>
+<span class="text-slate-500 font-label text-xl">/100</span>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<div class="flex items-center gap-2 text-secondary font-bold text-sm">
+<span class="material-symbols-outlined text-sm">keyboard_double_arrow_up</span>
+<span>Optimal</span>
+</div>
+<svg class="w-32 h-8 text-secondary/40" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 100 30">
+<path d="M0 20 C 10 15, 40 5, 60 10 S 90 2, 100 5" stroke-linecap="round"></path>
+</svg>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="col-span-4 bg-surface-container-low rounded-2xl p-8 glass-panel relative overflow-hidden group">
+<p class="text-on-surface-variant font-label text-xs uppercase tracking-widest mb-4">Network Pulse</p>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline text-5xl font-extrabold text-tertiary">99.8</h3>
+<span class="text-tertiary-dim font-label text-xl">%</span>
+</div>
+<div class="mt-6 flex items-center justify-between">
+<div class="flex items-center gap-2 text-slate-500 font-bold text-sm">
+<span class="material-symbols-outlined text-sm">sync_alt</span>
+<span>Stable Cluster</span>
+</div>
+<div class="flex gap-1">
+<div class="w-1.5 h-6 bg-tertiary/20 rounded-full"></div>
+<div class="w-1.5 h-8 bg-tertiary/40 rounded-full"></div>
+<div class="w-1.5 h-10 bg-tertiary rounded-full pulse-secondary"></div>
+<div class="w-1.5 h-5 bg-tertiary/30 rounded-full"></div>
+<div class="w-1.5 h-7 bg-tertiary/50 rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Map Section -->
+<section class="mb-12">
+<div class="bg-surface-container-high rounded-3xl overflow-hidden relative border border-white/5 h-[600px] shadow-2xl">
+<!-- Map Background -->
+<img alt="Interactive Logistics Map" class="w-full h-full object-cover opacity-40 mix-blend-luminosity" data-alt="night time aerial view of a futuristic city grid with illuminated blue and orange street lights and traffic streaks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_t9kOGTZAPFKNQIrYiE2pp7DhxJauSKCaAOnxoSVNJ9FUsDdZeo582yiAP6R2YrXPOsu3wJ7pFf2WyiJPNNIqnIX5qbgaukxWXBH6yh-au8ZPJtwKc05qFVzKOFQwUVBaR_o7UO8QTlqFnoCLmUbl0cn_XViQkGxOlerqT9R0JnM04KUPO2nthYSg23yEoNqdpReTTkiAkh_CsuvbLn51Y6eTlCkVjpqxO8sASfv97geHlREnDMBQDblGegD75e2tH_kZ9i4afMyp"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50"></div>
+<!-- HUD Overlays -->
+<div class="absolute top-8 left-8 p-6 glass-panel rounded-2xl w-72">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-headline font-bold text-white">Active Nodes</h4>
+<span class="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 rounded font-bold">142 LIVE</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-slate-400 text-xs">MUM-Central Hub</span>
+<span class="text-white text-xs font-bold font-label">2,412 p/h</span>
+</div>
+<div class="w-full h-1 bg-white/5 rounded-full">
+<div class="w-3/4 h-full bg-primary rounded-full shadow-[0_0_8px_rgba(133,173,255,0.6)]"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-slate-400 text-xs">DEL-Express Link</span>
+<span class="text-white text-xs font-bold font-label">1,890 p/h</span>
+</div>
+<div class="w-full h-1 bg-white/5 rounded-full">
+<div class="w-1/2 h-full bg-secondary rounded-full shadow-[0_0_8px_rgba(105,246,184,0.6)]"></div>
+</div>
+</div>
+</div>
+<!-- Custom Map Icons (Simulated) -->
+<div class="absolute top-1/2 left-1/3">
+<div class="relative flex items-center justify-center">
+<div class="pulse-secondary absolute w-12 h-12 bg-primary/20 rounded-full"></div>
+<div class="bg-primary p-2 rounded-lg shadow-xl shadow-primary/30 rotate-45">
+<span class="material-symbols-outlined text-on-primary-container text-lg -rotate-45" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+<div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-surface-container-highest px-3 py-1 rounded-lg border border-primary/20 whitespace-nowrap">
+<p class="text-[10px] font-bold text-white">DRIVER: V. SHARMA</p>
+</div>
+</div>
+</div>
+<div class="absolute bottom-1/3 right-1/4">
+<div class="relative flex items-center justify-center">
+<div class="bg-surface-container-highest/80 backdrop-blur p-1 rounded-full border border-secondary/20">
+<div class="w-3 h-3 bg-secondary rounded-full pulse-secondary"></div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-8 right-8 flex gap-2">
+<div class="glass-panel p-2 rounded-xl flex flex-col gap-2">
+<button class="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-lg text-white transition-colors"><span class="material-symbols-outlined">add</span></button>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-lg text-white transition-colors"><span class="material-symbols-outlined">remove</span></button>
+</div>
+<div class="glass-panel p-2 rounded-xl flex items-center justify-center">
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary-container rounded-lg"><span class="material-symbols-outlined">my_location</span></button>
+</div>
+</div>
+</div>
+</section>
+<!-- Fleet Driver Manifest Table -->
+<section class="mb-12">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline text-2xl font-bold text-white">Fleet Driver Manifest</h3>
+<div class="flex gap-4">
+<select class="bg-surface-container-high border-none text-xs rounded-xl px-4 py-2 font-label text-slate-300 focus:ring-1 focus:ring-primary/50 cursor-pointer">
+<option>All Statuses</option>
+<option>Active</option>
+<option>Delayed</option>
+</select>
+<button class="text-primary font-label text-xs font-bold border border-primary/20 px-4 py-2 rounded-xl hover:bg-primary/5 transition-colors">Export CSV</button>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-3xl overflow-hidden glass-panel">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-white/5 bg-white/2">
+<th class="px-8 py-5 text-on-surface-variant font-label text-[10px] uppercase tracking-widest font-bold">Driver Identity</th>
+<th class="px-8 py-5 text-on-surface-variant font-label text-[10px] uppercase tracking-widest font-bold">Vehicle ID</th>
+<th class="px-8 py-5 text-on-surface-variant font-label text-[10px] uppercase tracking-widest font-bold">Route Efficiency</th>
+<th class="px-8 py-5 text-on-surface-variant font-label text-[10px] uppercase tracking-widest font-bold">Live Status</th>
+<th class="px-8 py-5 text-on-surface-variant font-label text-[10px] uppercase tracking-widest font-bold">Completion</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/2 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<img alt="Driver" class="w-10 h-10 rounded-full border border-white/10" data-alt="headshot of a young adult man with a friendly expression in a modern professional setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxumwlusGsRtOLr_LVm7nxuuNKWYSV78oWBMfH7qChqv8ve6JKfC__2jYTOzhkUt1kByy_ZjEGidDN7SVFqmstLMDQVhCauTaUNJCQUBhODdVpZAdHZ_fbLpJhvCvWouZybHGsQ2UPneBpkMnAkBjUt51t_bSv_YVFlsDoIgfc26IBd8L6-K8LcO1Pvnxsqpd9xvU2cQG72Gd82Iu_quNqr2etGJeJ_DQ58A8VB4TE7OoO9TXCUhn05KqGWW_P8cd753NY3ITk3f3V"/>
+<div>
+<p class="text-white font-bold text-sm">Vikram Sharma</p>
+<p class="text-slate-500 text-[10px]">South Mumbai Loop</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="bg-surface-container-highest text-primary font-label text-[11px] px-3 py-1 rounded-md border border-primary/10">SOV-8821</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<span class="text-secondary font-label font-bold text-sm">94.2%</span>
+<div class="w-12 h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="w-full h-full bg-secondary rounded-full"></div>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 bg-secondary rounded-full pulse-secondary"></div>
+<span class="text-secondary text-[11px] font-bold tracking-wide uppercase">Active</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-4 w-full">
+<div class="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden relative">
+<div class="absolute inset-y-0 left-0 bg-primary w-4/5 rounded-full shadow-[0_0_10px_rgba(133,173,255,0.4)]"></div>
+</div>
+<span class="text-white font-label font-bold text-xs">82%</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/2 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<img alt="Driver" class="w-10 h-10 rounded-full border border-white/10" data-alt="portrait of a focused professional woman in a high-tech office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0VPs6jGO8aJ7FHY4q3-doV9XUhA5TWi_nQhZbh5hHYHVZp6v5DTlNGxlaANlvAxXeuKh8escedHeZ8OSicHQ9ayzZJAJZYIShslYyD2oXnA2tFn1QJt4LNSWrVmwcPnwPbzCUCV2NuD6Xdnvb2VhiljCTXV5szLCAajo_cFt44Ytp_mz5wiut7LV5A1WdLMJla8n_etiTfEFjBgZYiNfZdAcei9QBoMN97diCUhP6vknHK6GdK7b6bexsf5ozd9kcwsr-zrwv9nuG"/>
+<div>
+<p class="text-white font-bold text-sm">Ananya Iyer</p>
+<p class="text-slate-500 text-[10px]">Navi Mumbai Gateway</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="bg-surface-container-highest text-primary font-label text-[11px] px-3 py-1 rounded-md border border-primary/10">SOV-1109</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<span class="text-error font-label font-bold text-sm">68.5%</span>
+<div class="w-12 h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="w-2/3 h-full bg-error rounded-full"></div>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 bg-error rounded-full"></div>
+<span class="text-error text-[11px] font-bold tracking-wide uppercase">Delayed</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-4 w-full">
+<div class="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden relative">
+<div class="absolute inset-y-0 left-0 bg-error w-1/3 rounded-full"></div>
+</div>
+<span class="text-white font-label font-bold text-xs">33%</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/2 transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-slate-500">person</span>
+</div>
+<div>
+<p class="text-white font-bold text-sm">Rajesh Patel</p>
+<p class="text-slate-500 text-[10px]">Thane Distribution Hub</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="bg-surface-container-highest text-primary font-label text-[11px] px-3 py-1 rounded-md border border-primary/10">SOV-4432</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<span class="text-slate-400 font-label font-bold text-sm">--</span>
+<div class="w-12 h-1 bg-white/5 rounded-full overflow-hidden"></div>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 bg-slate-600 rounded-full"></div>
+<span class="text-slate-500 text-[11px] font-bold tracking-wide uppercase">At Rest</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-4 w-full">
+<div class="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden relative"></div>
+<span class="text-slate-600 font-label font-bold text-xs">0%</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Dynamic Insights Footer -->
+<section class="grid grid-cols-2 gap-8 mb-12">
+<div class="bg-tertiary/5 border border-tertiary/10 rounded-2xl p-6 flex items-start gap-4">
+<div class="p-3 bg-tertiary/20 rounded-xl">
+<span class="material-symbols-outlined text-tertiary">auto_awesome</span>
+</div>
+<div>
+<h5 class="text-tertiary font-bold mb-2">AI Stress Test Prediction</h5>
+<p class="text-slate-400 text-sm leading-relaxed">The logistics engine predicts a 12% bottleneck at the <span class="text-white font-bold">Andheri East intersection</span> due to heavy monsoon rain simulations. Suggesting reroute for 8 vehicles via the JVLR bypass.</p>
+<button class="mt-4 text-xs font-bold font-label uppercase tracking-widest text-tertiary hover:underline">Apply Optimization</button>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-2xl p-6 flex flex-col justify-center">
+<div class="flex justify-between items-center mb-4">
+<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Network Load Factor</span>
+<span class="text-white font-bold text-sm">74.2%</span>
+</div>
+<div class="h-2 bg-background rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-secondary w-[74%] rounded-full shadow-lg shadow-primary/20"></div>
+</div>
+</div>
+</section>
+</main>
+</body></html>
