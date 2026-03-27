@@ -62,12 +62,12 @@ LOGISTICS = {
         ]
     },
     "Ahmedabad": {
-        "score": 88, "recommendation": "Excellent logistics hub. Mundra Port corridor is highly efficient. MSME cluster density is highest after Surat.",
+        "score": 85, "recommendation": "Excellent logistics hub. Mundra Port (340km) corridor via NH-48 is highly efficient. MSME cluster density is highest after Surat. Strong for manufacturing and D2C exports.",
         "metrics": [
             {"name": "Last-Mile Density", "value": 88, "unit": "Strong courier network"},
             {"name": "Supplier Proximity", "value": 92, "unit": "MSME clusters excellent"},
             {"name": "Highway Access", "value": 90, "unit": "NH-48 · NH-27 · NH-8"},
-            {"name": "Port Distance", "value": 85, "unit": "340km to Mundra Port"},
+            {"name": "Port Distance", "value": 80, "unit": "340km to Mundra Port via NH-48"},
             {"name": "Cold Chain", "value": 72, "unit": "Adequate infrastructure"},
             {"name": "Cost vs Bangalore", "value": 85, "unit": "15% cheaper logistics"},
         ]
@@ -84,14 +84,14 @@ LOGISTICS = {
         ]
     },
     "Mumbai": {
-        "score": 88, "recommendation": "Unmatched sea freight access via JNPT (Nhava Sheva). Last-mile is highly crowded but effective. Warehousing costs are very high — consider Bhiwandi.",
+        "score": 92, "recommendation": "India's premier logistics gateway. JNPT (Nhava Sheva) handles ~55% of India's container traffic — unmatched sea freight. Warehousing costs are very high — use Bhiwandi/Panvel satellite hubs to cut costs.",
         "metrics": [
             {"name": "Last-Mile Density", "value": 95, "unit": "Extensive 2W/3W EV network"},
             {"name": "Supplier Proximity", "value": 85, "unit": "Strong industrial corridors"},
-            {"name": "Highway Access", "value": 86, "unit": "NH-48 · Mumbai-Pune Exp"},
-            {"name": "Port Distance", "value": 95, "unit": "40km to JNPT Port (Nhava Sheva)"},
+            {"name": "Highway Access", "value": 88, "unit": "NH-48 · Mumbai-Pune Exp · MTHL"},
+            {"name": "Port Distance", "value": 98, "unit": "40km to JNPT (Nhava Sheva) — India's largest container port"},
             {"name": "Cold Chain", "value": 90, "unit": "Excellent specialized cold chain"},
-            {"name": "Cost vs Bangalore", "value": 40, "unit": "10% more expensive"},
+            {"name": "Cost vs Bangalore", "value": 40, "unit": "10% more expensive — use Bhiwandi for warehousing"},
         ]
     },
     "Delhi": {
@@ -117,7 +117,7 @@ LOGISTICS = {
         ]
     },
     "Hyderabad": {
-        "score": 80, "recommendation": "Centralized location makes it ideal for pan-India distribution. Pharma/Life Sciences cold chain is world-class. Coast access requires overland.",
+        "score": 79, "recommendation": "Centralized location makes it ideal for pan-India distribution. Pharma/Life Sciences cold chain is world-class. Coast access requires overland — 380km to Krishnapatnam Port.",
         "metrics": [
             {"name": "Last-Mile Density", "value": 86, "unit": "Strong and growing quickly"},
             {"name": "Supplier Proximity", "value": 78, "unit": "Pharma and Electronics clusters"},
@@ -125,6 +125,94 @@ LOGISTICS = {
             {"name": "Port Distance", "value": 58, "unit": "380km to Krishnapatnam Port"},
             {"name": "Cold Chain", "value": 92, "unit": "Best-in-class Pharma cold chain"},
             {"name": "Cost vs Bangalore", "value": 70, "unit": "15% cheaper logistics"},
+        ]
+    },
+    "Chennai": {
+        "score": 87, "recommendation": "Major port city with direct sea freight access via Chennai Port and Ennore Port. Auto/manufacturing export powerhouse. Strong for import-heavy businesses — lowest sea freight cost in South India.",
+        "metrics": [
+            {"name": "Last-Mile Density", "value": 86, "unit": "All major courier players — high volume hub"},
+            {"name": "Supplier Proximity", "value": 84, "unit": "Auto/components clusters (Ford, Hyundai, BMW)"},
+            {"name": "Highway Access", "value": 84, "unit": "NH-44 · NH-32 · NH-216"},
+            {"name": "Port Distance", "value": 95, "unit": "10km to Chennai Port / 30km to Ennore Port"},
+            {"name": "Cold Chain", "value": 72, "unit": "Good — pharma and seafood grade"},
+            {"name": "Cost vs Bangalore", "value": 78, "unit": "10% cheaper logistics"},
+        ]
+    },
+    "Kochi": {
+        "score": 78, "recommendation": "Best port connectivity in South-West India via Kochi International Container Transshipment Terminal (Vallarpadam). Excellent cold chain for seafood exports. Limited MSME depth — ideal for import-based or seafood businesses.",
+        "metrics": [
+            {"name": "Last-Mile Density", "value": 76, "unit": "Good urban coverage — growing 3PL network"},
+            {"name": "Supplier Proximity", "value": 64, "unit": "Spices, seafood, limited heavy industry"},
+            {"name": "Highway Access", "value": 70, "unit": "NH-66 · NH-544 — coastal highway"},
+            {"name": "Port Distance", "value": 96, "unit": "5km to Kochi Container Transshipment Terminal"},
+            {"name": "Cold Chain", "value": 85, "unit": "World-class seafood cold chain infrastructure"},
+            {"name": "Cost vs Bangalore", "value": 72, "unit": "15% cheaper logistics"},
+        ]
+    },
+    "Surat": {
+        "score": 81, "recommendation": "Diamond & textile logistics powerhouse. Hazira Port (60km) provides competitive sea freight. Largest synthetic textile cluster and second-largest diamond cutting hub globally. Cost-effective base for D2C and manufacturing exports.",
+        "metrics": [
+            {"name": "Last-Mile Density", "value": 82, "unit": "Strong — textile/diamond trade logistics"},
+            {"name": "Supplier Proximity", "value": 92, "unit": "Exceptional — largest synthetic textile cluster in India"},
+            {"name": "Highway Access", "value": 86, "unit": "NH-48 · DMIC corridor"},
+            {"name": "Port Distance", "value": 82, "unit": "60km to Hazira Port (Adani)"},
+            {"name": "Cold Chain", "value": 58, "unit": "Moderate — not a primary food hub"},
+            {"name": "Cost vs Bangalore", "value": 84, "unit": "18% cheaper logistics"},
+        ]
+    },
+    "Coimbatore": {
+        "score": 68, "recommendation": "Strong industrial base (pumps, motors, textiles) with good highway access. No direct sea port — V.O. Chidambaranar Port (Tuticorin) is 210km away. Ideal for domestic supply chains; use Chennai Port for exports.",
+        "metrics": [
+            {"name": "Last-Mile Density", "value": 72, "unit": "Good Tier-2 coverage — growing 3PL presence"},
+            {"name": "Supplier Proximity", "value": 84, "unit": "Strong — pumps, motors, foundries, MSME base"},
+            {"name": "Highway Access", "value": 76, "unit": "NH-544 · NH-181 · NH-948"},
+            {"name": "Port Distance", "value": 45, "unit": "210km to V.O. Chidambaranar (Tuticorin) Port"},
+            {"name": "Cold Chain", "value": 58, "unit": "Moderate — limited specialized storage"},
+            {"name": "Cost vs Bangalore", "value": 80, "unit": "22% cheaper logistics"},
+        ]
+    },
+    "Indore": {
+        "score": 65, "recommendation": "Madhya Pradesh's commercial hub with strong domestic distribution. Inland location — farthest from sea ports (1200km+). Best suited for domestic-only supply chains. Excellent cost advantage and growing warehousing ecosystem near Pithampur.",
+        "metrics": [
+            {"name": "Last-Mile Density", "value": 72, "unit": "Good Tier-2 hub — Delhivery + Ecom Express"},
+            {"name": "Supplier Proximity", "value": 74, "unit": "Pharma, food processing, textile MSME clusters"},
+            {"name": "Highway Access", "value": 82, "unit": "NH-52 · NH-347B — near DMIC corridor"},
+            {"name": "Port Distance", "value": 28, "unit": "1200km+ to nearest sea port (JNPT/Mundra)"},
+            {"name": "Cold Chain", "value": 52, "unit": "Limited — growing at Pithampur industrial zone"},
+            {"name": "Cost vs Bangalore", "value": 84, "unit": "25% cheaper logistics"},
+        ]
+    },
+    "Kolkata": {
+        "score": 80, "recommendation": "Eastern India's logistics gateway via Kolkata Port Trust and Haldia Dock Complex (55km). Strong for Bengal/Bangladesh trade corridor. Multimodal hub — rail, river (Ganga), and sea. Best suited for eastern-region distribution.",
+        "metrics": [
+            {"name": "Last-Mile Density", "value": 88, "unit": "Dense urban network — high volume city"},
+            {"name": "Supplier Proximity", "value": 76, "unit": "Jute, steel, chemicals, light engineering clusters"},
+            {"name": "Highway Access", "value": 78, "unit": "NH-12 · NH-16 · Bypass expressway"},
+            {"name": "Port Distance", "value": 85, "unit": "55km to Haldia Dock Complex (Kolkata Port Trust)"},
+            {"name": "Cold Chain", "value": 68, "unit": "Good — seafood and agricultural cold chain"},
+            {"name": "Cost vs Bangalore", "value": 76, "unit": "12% cheaper logistics"},
+        ]
+    },
+    "Visakhapatnam": {
+        "score": 76, "recommendation": "Eastern coast's premier deep-water port city. Visakhapatnam Port is a major container and bulk cargo hub. Strong for pharma, steel, and petroleum logistics. Growing industrial corridor (PCPIR) boosts supply chain depth.",
+        "metrics": [
+            {"name": "Last-Mile Density", "value": 72, "unit": "Good — growing 3PL presence in PCPIR zone"},
+            {"name": "Supplier Proximity", "value": 74, "unit": "Pharma, steel, petroleum, shipbuilding clusters"},
+            {"name": "Highway Access", "value": 76, "unit": "NH-16 (Vizag-Chennai) · NH-516"},
+            {"name": "Port Distance", "value": 96, "unit": "5km to Visakhapatnam Port — deep-water container hub"},
+            {"name": "Cold Chain", "value": 62, "unit": "Moderate — seafood and pharma cold chain"},
+            {"name": "Cost vs Bangalore", "value": 78, "unit": "18% cheaper logistics"},
+        ]
+    },
+    "Nagpur": {
+        "score": 72, "recommendation": "India's geographic centre — 'Zero Mile' city ideal for pan-India distribution. Multimodal Logistics Park (MMLP) at Butibori is a key node. No sea port but excellent railway and highway network reduces overland time to all regions.",
+        "metrics": [
+            {"name": "Last-Mile Density", "value": 76, "unit": "Good — growing hub for central India distribution"},
+            {"name": "Supplier Proximity", "value": 70, "unit": "Orange/agri processing, textiles, auto components"},
+            {"name": "Highway Access", "value": 90, "unit": "NH-44 · NH-6 · NH-7 — Zero Mile connectivity"},
+            {"name": "Port Distance", "value": 38, "unit": "900km to JNPT / 800km to Krishnapatnam Port"},
+            {"name": "Cold Chain", "value": 62, "unit": "Good — orange cold chain + MMLP facility"},
+            {"name": "Cost vs Bangalore", "value": 80, "unit": "20% cheaper logistics"},
         ]
     }
 }
