@@ -55,6 +55,7 @@ export const logisticsApi = {
   getScore: (city) => get(`/api/logistics/city/${city}`),
   getBreakdown: (city) => get(`/api/logistics/city/${city}/breakdown`),
   getAllCities: () => get('/api/logistics/cities'),
+  getHardware: () => get('/api/logistics/hardware'),
 }
 
 // ── Workforce ─────────────────────────────────────────────────────────────────

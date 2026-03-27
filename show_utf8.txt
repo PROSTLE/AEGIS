@@ -1,0 +1,77 @@
+﻿commit 8271f7232501b49189fa2f22317ded5770155be4
+Author: Harshit Aryan <harshitaryan21@gmail.com>
+Date:   Fri Mar 27 10:36:35 2026 +0530
+
+    Checkpoint from VS Code for cloud agent session
+
+ backend/app/data_store.py                          | 521 +++++++++++
+ backend/app/extended_data.py                       | 324 +++++++
+ backend/app/indian_cities_data.py                  | 350 ++++++++
+ backend/app/routes/activity.py                     | 110 ++-
+ backend/app/routes/advisor.py                      | 104 ++-
+ backend/app/routes/ai_narrator.py                  | 145 ++++
+ backend/app/routes/demand.py                       | 174 +++-
+ backend/app/routes/heatmap.py                      |  55 +-
+ backend/app/routes/idea_analysis.py                | 429 +++++++++
+ backend/app/routes/location.py                     |  74 +-
+ backend/app/routes/logistics.py                    |  59 +-
+ backend/app/routes/matchmaking.py                  |  63 +-
+ backend/app/routes/new_features.py                 | 169 ++++
+ backend/app/routes/survival.py                     | 260 +++++-
+ backend/app/routes/workforce.py                    |  49 +-
+ backend/main.py                                    |  76 +-
+ frontend/index.html                                |   5 +-
+ frontend/package-lock.json                         |  34 +
+ frontend/package.json                              |   2 +
+ frontend/src/App.jsx                               |  47 +-
+ frontend/src/components/common/Layout.jsx          |   2 +-
+ frontend/src/components/common/Navbar.jsx          |  53 +-
+ frontend/src/components/common/Sidebar.jsx         |  79 +-
+ frontend/src/components/heatmap/CityMap.jsx        | 213 +++++
+ frontend/src/components/heatmap/HeatmapChart.jsx   |  53 +-
+ frontend/src/context/appStore.js                   |  86 +-
+ frontend/src/pages/ActivityPage.jsx                | 216 ++---
+ frontend/src/pages/AdvisorPage.jsx                 | 965 +++++++++++++--------
+ frontend/src/pages/CapitalPage.jsx                 | 208 +++++
+ frontend/src/pages/CityPlannerPage.jsx             | 145 ++++
+ frontend/src/pages/CompetitionPage.jsx             | 232 +++++
+ frontend/src/pages/Dashboard.jsx                   | 920 +++++++++++++-------
+ frontend/src/pages/DemandPage.jsx                  | 164 ++--
+ frontend/src/pages/HeatmapPage.jsx                 | 164 ++--
+ frontend/src/pages/IntelligencePage.jsx            | 264 ++++++
+ frontend/src/pages/LandingPage.jsx                 | 293 +++++++
+ frontend/src/pages/LocationPage.jsx                | 170 ++--
+ frontend/src/pages/LogisticsPage.jsx               | 164 ++--
+ frontend/src/pages/MatchmakingPage.jsx             |  76 +-
+ frontend/src/pages/SurvivalPredictorPage.jsx       | 222 +++--
+ frontend/src/pages/VaultPage.jsx                   | 209 +++++
+ frontend/src/pages/WarRoomPage.jsx                 | 147 ++++
+ frontend/src/pages/WorkforcePage.jsx               |  82 +-
+ frontend/src/services/api.js                       | 214 +++--
+ frontend/src/styles/index.css                      | 553 ++++++------
+ frontend/src/styles/layout.css                     | 423 ++++++---
+ frontend/src/styles/pages.css                      |  50 +-
+ frontend/src/utils/constants.js                    |  12 +-
+ stitch/aegis_complete_project_brief.txt_1.html     | 714 +++++++++++++++
+ stitch/aegis_complete_project_brief.txt_2.html     | 714 +++++++++++++++
+ .../aegis_analyze_startup_plan_with_exit/code.html | 227 +++++
+ .../screen.png                                     | Bin 0 -> 483440 bytes
+ stitch/stitch/aegis_cybernetic/DESIGN.md           |  77 ++
+ stitch/stitch/aegis_jaipur_city_intel/code.html    | 219 +++++
+ stitch/stitch/aegis_jaipur_city_intel/screen.png   | Bin 0 -> 238240 bytes
+ .../aegis_logistics_stress_test_desktop/code.html  | 479 ++++++++++
+ .../aegis_logistics_stress_test_desktop/screen.png | Bin 0 -> 400555 bytes
+ .../aegis_logistics_stress_test_mobile/code.html   | 274 ++++++
+ .../aegis_logistics_stress_test_mobile/screen.png  | Bin 0 -> 254366 bytes
+ .../aegis_onboarding_simplified_desktop/code.html  | 183 ++++
+ .../aegis_onboarding_simplified_desktop/screen.png | Bin 0 -> 578707 bytes
+ .../code.html                                      | 375 ++++++++
+ .../screen.png                                     | Bin 0 -> 300745 bytes
+ stitch/stitch/aegis_tactical_hud_desktop/code.html | 352 ++++++++
+ .../stitch/aegis_tactical_hud_desktop/screen.png   | Bin 0 -> 503166 bytes
+ stitch/stitch/image.png_1/screen.png               | Bin 0 -> 76419 bytes
+ stitch/stitch/image.png_2/screen.png               | Bin 0 -> 488689 bytes
+ stitch/stitch/image.png_3/screen.png               | Bin 0 -> 487660 bytes
+ stitch/stitch/image.png_4/screen.png               | Bin 0 -> 278302 bytes
+ stitch/stitch/image.png_5/screen.png               | Bin 0 -> 278302 bytes
+ 70 files changed, 11061 insertions(+), 1982 deletions(-)

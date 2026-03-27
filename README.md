@@ -1,7 +1,35 @@
 # AEGIS - Startup Terrain Intelligence Platform for India
 
-AEGIS is an AI-powered startup terrain intelligence platform designed specifically for India, helping founders and investors make data-driven decisions about startup location selection and viability.
+## What is AEGIS?
 
+AEGIS is an advanced, AI-powered startup terrain intelligence platform tailored for the Indian market. It empowers founders, investors, and urban planners to make data-driven decisions regarding startup location selection, operational viability, and market demand. By analyzing thousands of data points across geography, logistics, workforce, and real-time activity, AEGIS provides a dynamic launch readiness score and actionable insights for major Indian startup hubs.
+
+## Architecture & How It Works
+
+AEGIS follows a modern, decoupled client-server architecture:
+
+-   **Frontend (React + Vite):** The user interface is built with React, utilizing D3.js and Recharts for highly interactive data visualizations. It handles state management via Zustand and communicates with the backend via REST APIs. The frontend is responsible for rendering the complex intelligence dashboards, maps, and predictive metrics in an intuitive, cybernetic-themed design.
+-   **Backend (Python + FastAPI):** The intelligence engine of AEGIS. It processes incoming requests, computes real-time metrics, runs predictive algorithms, and integrates with the Google Gemini 1.5 Flash LLM for the AI Advisor feature. The backend performs the heavy lifting of spatial, predictive, and statistical analysis on-the-fly.
+
+**How it works:** When a user inputs their startup idea and selects a city, the frontend queries the specific FastAPI endpoints. The backend computes the metrics (Logistics, Demand, Workforce, Competition, Survival) dynamically, processes them through the AI Advisor for a cohesive narrative, and returns the actionable data to the frontend to populate the comprehensive dashboard.
+
+## Hardware Integration
+
+AEGIS also features a **Hardware Simulation System** designed to demonstrate real-world physical data integration. This component visualizes real-time metric streams as if they were coming from physical IoT sensors:
+- **Motion & Footfall Traffic**
+- **Proximity & Distance**
+- **Vibration & Industrial Activity**
+- **Environmental Conditions (e.g., Moisture)**
+
+These simulated sensor pipelines prove the platform's capability to ingest, process, and display live physical endpoint data streams. This is crucial for evaluating infrastructure, agritech, and industrial startup viability, extending AEGIS's intelligence beyond just digital statistics into physical world tracking.
+
+## Localhost Execution
+
+When running the platform locally for development, the components are hosted at the following addresses:
+
+-   **Frontend UI:** `http://localhost:5173` (Vite Development Server)
+-   **Backend API:** `http://localhost:8000` (FastAPI Uvicorn Server)
+    -   *Interactive API Docs (Swagger UI):* `http://localhost:8000/docs`
 ## Project Structure
 
 ```

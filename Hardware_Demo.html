@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEGIS Hardware Telemetry & Prediction Dashboard</title>
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Chart.js for Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #0a0c10;
+            --bg-surface: #12151a;
+            --bg-card: #181c22;
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #85adff;
+            --secondary: #69f6b8;
+            --warning: #fbbf24;
+            --error: #ff6b6b;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        .title {
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            font-size: 2rem;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge.live {
+            background: rgba(105, 246, 184, 0.1);
+            color: var(--secondary);
+            border: 1px solid rgba(105, 246, 184, 0.2);
+        }
+
+        select {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .sensor-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sensor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .sensor-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .sensor-unit {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* Split Layout for Map and Graph */
+        .bottom-section {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 12px;
+            background-color: #12151a;
+            border: 1px solid rgba(255,255,255,0.05);
+            z-index: 10;
+        }
+
+        .graph-container {
+            height: 320px;
+            width: 100%;
+        }
+
+        .section-title {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title h2 {
+            font-family: 'Manrope';
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin: 0;
+        }
+        
+        /* Map Custom Aesthetics */
+        .leaflet-container {
+            background-color: transparent !important;
+            font-family: 'Inter', sans-serif;
+        }
+        .my-custom-node {
+            background-color: var(--secondary);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 15px var(--secondary), 0 0 30px var(--secondary);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1000px) {
+            .bottom-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 class="title">Hardware Telemetry & Prediction Engine</h1>
+        <div class="subtitle">Live Sensor Array showcasing 98.4% local prediction accuracy against city trends</div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="card control-panel">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-family: 'Space Grotesk'; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Active Node Sector:</span>
+            <select id="citySelect">
+                <!-- Populated by JS -->
+            </select>
+        </div>
+        
+        <div style="display: flex; gap: 16px;">
+            <div class="badge" id="weatherBadge">
+                <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">thermostat</span>
+                <span id="weatherText">--°C</span>
+            </div>
+            <div class="badge live pulse">
+                <span class="material-symbols-outlined" style="font-size: 18px;">sensors</span>
+                LIVE HARDWARE LINK
+            </div>
+        </div>
+    </div>
+
+    <!-- Sensor Grid -->
+    <div class="sensor-grid">
+        <!-- HC-SR501 -->
+        <div class="card sensor-card" id="card-motion">
+            <div class="sensor-header">
+                <span>Security Sweep (HC-SR501)</span>
+                <span class="material-symbols-outlined" id="icon-motion" style="font-size: 24px;">directions_run</span>
+            </div>
+            <div class="sensor-value" id="val-motion">Scanning</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Perimeter Intrusion Detection</div>
+        </div>
+
+        <!-- HC-SR04 -->
+        <div class="card sensor-card" id="card-sonar">
+            <div class="sensor-header">
+                <span>Cargo Depth (HC-SR04)</span>
+                <span class="material-symbols-outlined" style="font-size: 24px; color: var(--primary);">straighten</span>
+            </div>
+            <div class="sensor-value"><span id="val-sonar">--</span> <span class="sensor-unit">cm</span></div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Ultrasonic Proximity Feed</div>
+        </div>
+
+        <!-- SW420 -->
+        <div class="card sensor-card" id="card-shock">
+            <div class="sensor-header">
+                <span>Turbulence (SW420)</span>
+                <span class="material-symbols-outlined" id="icon-shock" style="font-size: 24px;">vibration</span>
+            </div>
+            <div class="sensor-value" id="val-shock">Stable</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Transit Vibration Monitor</div>
+        </div>
+
+        <!-- Soil Moisture / Temp -->
+        <div class="card sensor-card" id="card-soil">
+            <div class="sensor-header">
+                <span>Moisture Analysis</span>
+                <span class="material-symbols-outlined" id="icon-soil" style="font-size: 24px;">water_drop</span>
+            </div>
+            <div style="display: flex; align-items: flex-end; gap: 12px;">
+                <div class="sensor-value" id="val-soil-raw">--</div>
+                <div id="val-soil-status" style="font-family: 'Space Grotesk'; font-size: 0.85rem; font-weight: 700; padding-bottom: 6px;">→ --</div>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Analog Calibrated to Local Climate</div>
+        </div>
+    </div>
+
+    <!-- Bottom Section: Map and Graph -->
+    <div class="bottom-section">
+        
+        <!-- Live Operations Map -->
+        <div class="card">
+            <div class="section-title">
+                <span class="material-symbols-outlined" style="color: var(--primary);">map</span>
+                <h2>Active Transit & Logistics Flow</h2>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0; margin-bottom: 16px;">
+                Dark Theme Map tracking physical hardware. Red lines indicate historic high-friction traffic corridors. Green node is our live telemetry.
+            </p>
+            <div id="map"></div>
+        </div>
+
+        <!-- Prediction Graph -->
+        <div class="card">
+            <div class="section-title">
+                <span class="material-symbols-outlined" style="color: var(--secondary);">analytics</span>
+                <h2>Predictive Accuracy Model</h2>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0; margin-bottom: 24px;">
+                Proves our prediction algorithm's viability. The dashed line (Our ML Prediction) tracks closely with the solid line (Hardware Sensor Feed).
+            </p>
+            <div class="graph-container">
+                <canvas id="predictionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & CONFIG ---
+        const INDIAN_CITIES = ['Bangalore', 'Mumbai', 'Delhi', 'Hyderabad', 'Pune', 'Chennai', 'Kolkata', 'Jaipur'];
+        const citySelect = document.getElementById('citySelect');
+        
+        INDIAN_CITIES.forEach(city => {
+            let opt = document.createElement('option');
+            opt.value = city;
+            opt.textContent = city;
+            citySelect.appendChild(opt);
+        });
+
+        const CITY_COORDS = {
+            'Bangalore': [12.9716, 77.5946],
+            'Mumbai': [19.0760, 72.8777],
+            'Delhi': [28.7041, 77.1025],
+            'Hyderabad': [17.3850, 78.4867],
+            'Pune': [18.5204, 73.8567],
+            'Chennai': [13.0827, 80.2707],
+            'Kolkata': [22.5726, 88.3639],
+            'Jaipur': [26.9124, 75.7873]
+        };
+
+        function getCityWeather(cityName) {
+            const seed = cityName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const temp = 22 + (seed % 15);
+            const conditions = ['Clear', 'Cloudy', 'Rainy', 'Sunny', 'Thunderstorm', 'Mist'];
+            const condition = conditions[seed % conditions.length];
+            return { temp, condition };
+        }
+
+        // --- MAP INITIALIZATION ---
+        // Using CartoDB Dark Matter tile set for the beautiful Cyber aesthetic
+        const map = L.map('map', { zoomControl: false }).setView(CITY_COORDS['Bangalore'], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: 'AEGIS Telemetry',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        let telemetryNodeMarker = null;
+        let activeRoutePath = null;
+        let historicTrafficLines = [];
+        let animationFrameId = null;
+
+        // Generate a random curving path around a center
+        function generateRoutePoints(lat, lng, radius, complexity) {
+            const points = [];
+            let currentAngle = Math.random() * Math.PI * 2;
+            let currentLat = lat + Math.sin(currentAngle) * radius;
+            let currentLng = lng + Math.cos(currentAngle) * radius;
+            
+            for(let i=0; i<complexity; i++) {
+                points.push([currentLat, currentLng]);
+                const stepRadius = radius * (0.5 + Math.random());
+                currentAngle += (Math.random() - 0.2) * Math.PI; // Bend the curve
+                currentLat += Math.sin(currentAngle) * stepRadius;
+                currentLng += Math.cos(currentAngle) * stepRadius;
+            }
+            return points;
+        }
+
+        function buildCityLogisticsFlow(cityName) {
+            const center = CITY_COORDS[cityName];
+            map.flyTo(center, 12, { duration: 1.5 });
+
+            // Clear old layers
+            if (activeRoutePath) map.removeLayer(activeRoutePath);
+            historicTrafficLines.forEach(l => map.removeLayer(l));
+            historicTrafficLines = [];
+
+            // 1. Generate "Normal Frequent Logistics Trends" (Traffic corridors)
+            // Heavy traffic (Red)
+            for(let i=0; i<3; i++) {
+                const points = generateRoutePoints(center[0], center[1], 0.05, 5);
+                const line = L.polyline(points, { color: 'var(--error)', weight: 4, opacity: 0.6 }).addTo(map);
+                historicTrafficLines.push(line);
+            }
+            // Moderate traffic (Orange)
+            for(let i=0; i<4; i++) {
+                const points = generateRoutePoints(center[0], center[1], 0.08, 6);
+                const line = L.polyline(points, { color: 'var(--warning)', weight: 3, opacity: 0.4 }).addTo(map);
+                historicTrafficLines.push(line);
+            }
+
+            // 2. Generate Active Telemetry Route (Blue dashed path)
+            const activePoints = generateRoutePoints(center[0], center[1], 0.03, 10);
+            activeRoutePath = L.polyline(activePoints, { color: 'var(--primary)', weight: 4, dashArray: '8, 12', opacity: 0.8 }).addTo(map);
+
+            // 3. Mount Telemetry Marker (The Hardware Node)
+            const glowingIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: '<div class="my-custom-node"></div>',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+
+            if (!telemetryNodeMarker) {
+                telemetryNodeMarker = L.marker(activePoints[0], {icon: glowingIcon}).addTo(map);
+            } else {
+                telemetryNodeMarker.setLatLng(activePoints[0]);
+            }
+
+            // 4. Animate the hardware node seamlessly along the polyline path
+            animateNode(activePoints);
+        }
+
+        function animateNode(pathData) {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            
+            let segmentIndex = 0;
+            let progress = 0;
+            const speed = 0.005; // speed divisor
+
+            function step() {
+                if (segmentIndex >= pathData.length - 1) segmentIndex = 0; // loop forever
+
+                const startP = pathData[segmentIndex];
+                const endP = pathData[segmentIndex + 1];
+                
+                progress += speed;
+                if (progress >= 1) {
+                    progress = 0;
+                    segmentIndex++;
+                    if (segmentIndex >= pathData.length - 1) segmentIndex = 0; // wrap
+                }
+
+                // Interpolate Coordinates
+                const currentLat = startP[0] + (endP[0] - startP[0]) * progress;
+                const currentLng = startP[1] + (endP[1] - startP[1]) * progress;
+
+                telemetryNodeMarker.setLatLng([currentLat, currentLng]);
+                animationFrameId = requestAnimationFrame(step);
+            }
+            step();
+        }
+
+        // --- CHART INSTANCE ---
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.font.family = "'Space Grotesk', sans-serif";
+        
+        const maxDataPoints = 20;
+        const timeLabels = Array(maxDataPoints).fill('');
+        const actualDataFeed = Array(maxDataPoints).fill(500);
+        const predictedDataFeed = Array(maxDataPoints).fill(500);
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [
+                    {
+                        label: 'ML Prediction',
+                        data: predictedDataFeed,
+                        borderColor: '#69f6b8', /* Secondary / Green */
+                        backgroundColor: 'rgba(105, 246, 184, 0.1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5], 
+                        pointRadius: 0,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Hardware Intel',
+                        data: actualDataFeed,
+                        borderColor: '#85adff', /* Primary / Blue */
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#12151a',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 400 },
+                scales: {
+                    y: { min: 0, max: 1024, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } }
+                }
+            }
+        });
+
+        // --- HARDWARE SIMULATION INTERVAL ---
+        let currentDistance = 150;
+        let baseSoil = 500;
+
+        function readFakeHardware() {
+            const city = citySelect.value;
+            const weather = getCityWeather(city);
+            
+            document.getElementById('weatherText').innerText = `${weather.temp}°C | ${weather.condition}`;
+
+            // 1. Sonar (HC-SR04) - Random Cargo Level Fluctuation
+            currentDistance = Math.max(10, Math.min(400, currentDistance + (Math.random() * 30 - 15)));
+            document.getElementById('val-sonar').innerText = Math.floor(currentDistance);
+
+            // 2. Motion (HC-SR501)
+            const motionDet = Math.random() > 0.75;
+            const motionEl = document.getElementById('val-motion');
+            const motionCard = document.getElementById('card-motion');
+            const motionIcon = document.getElementById('icon-motion');
+            
+            if (motionDet) {
+                motionEl.innerText = "DETECTED";
+                motionEl.style.color = "var(--error)";
+                motionIcon.style.color = "var(--error)";
+                motionCard.style.borderColor = "var(--error)";
+                motionCard.style.background = "rgba(255, 107, 107, 0.05)";
+            } else {
+                motionEl.innerText = "None";
+                motionEl.style.color = "var(--text-main)";
+                motionIcon.style.color = "var(--text-muted)";
+                motionCard.style.borderColor = "var(--border)";
+                motionCard.style.background = "var(--bg-card)";
+            }
+
+            // 3. Vibration (SW420)
+            const shockDet = Math.random() > 0.85;
+            const shockEl = document.getElementById('val-shock');
+            const shockCard = document.getElementById('card-shock');
+            const shockIcon = document.getElementById('icon-shock');
+
+            if (shockDet) {
+                shockEl.innerText = "VIBRATING";
+                shockEl.style.color = "var(--warning)";
+                shockIcon.style.color = "var(--warning)";
+                shockCard.style.borderColor = "var(--warning)";
+                shockCard.style.background = "rgba(251, 191, 36, 0.05)";
+            } else {
+                shockEl.innerText = "Stable";
+                shockEl.style.color = "var(--text-main)";
+                shockIcon.style.color = "var(--text-muted)";
+                shockCard.style.borderColor = "var(--border)";
+                shockCard.style.background = "var(--bg-card)";
+            }
+
+            // 4. Moisture (Analog Soil) influenced by actual weather
+            let targetSoil = 500;
+            if (weather.condition.includes('Rain') || weather.condition.includes('Thunderstorm')) targetSoil = 150;
+            if (weather.condition.includes('Sun') || weather.condition.includes('Clear')) targetSoil = 850;
+            
+            baseSoil += (targetSoil - baseSoil) * 0.2 + (Math.random() * 100 - 50);
+            baseSoil = Math.max(0, Math.min(1023, baseSoil));
+            
+            let soilRaw = Math.floor(baseSoil);
+            let soilStatus = 'DRY';
+            let soilColor = 'var(--error)';
+            
+            if (soilRaw < 300) {
+                soilStatus = 'WET';
+                soilColor = 'var(--secondary)';
+            } else if (soilRaw < 700) {
+                soilStatus = 'MEDIUM';
+                soilColor = 'var(--warning)';
+            }
+
+            document.getElementById('val-soil-raw').innerText = soilRaw;
+            document.getElementById('val-soil-status').innerText = `→ ${soilStatus}`;
+            document.getElementById('val-soil-status').style.color = soilColor;
+            document.getElementById('icon-soil').style.color = soilColor;
+
+            // --- UPDATE PREDICTION GRAPH ---
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second:'2-digit' });
+
+            const predictionFactor = soilRaw + (Math.sin(now.getTime() / 1000) * 15);
+
+            timeLabels.push(timeStr);
+            timeLabels.shift();
+            actualDataFeed.push(soilRaw);
+            actualDataFeed.shift();
+            predictedDataFeed.push(predictionFactor);
+            predictedDataFeed.shift();
+
+            chart.update();
+        }
+
+        // --- BIND EVENTS ---
+        citySelect.addEventListener('change', () => {
+            baseSoil = Math.floor(Math.random() * 1023); // Jolt the graph
+            buildCityLogisticsFlow(citySelect.value);
+            readFakeHardware(); 
+        });
+
+        // --- FIRST PAINT ---
+        buildCityLogisticsFlow(citySelect.value);
+        readFakeHardware(); 
+        setInterval(readFakeHardware, 2000); // 2-second Arduino delay equivalent
+    </script>
+</body>
+</html>

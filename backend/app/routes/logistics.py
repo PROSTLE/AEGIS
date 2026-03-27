@@ -2,6 +2,19 @@
 from fastapi import APIRouter
 from app.data_store import LOGISTICS
 from app.schemas import LogisticsScoreResponse
+import time
+from typing import Optional
+from pydantic import BaseModel
+
+class HardwareData(BaseModel):
+    motion: str
+    distance: float
+    vibration: str
+    soil: int
+    timestamp: float = 0.0
+
+# Global state to hold the latest telemetry from the Arduino
+CURRENT_HARDWARE_STATE: Optional[HardwareData] = None
 
 router = APIRouter(prefix="/api/logistics", tags=["logistics"])
 
@@ -62,3 +75,23 @@ async def get_all_logistics():
             for city, data in LOGISTICS.items()
         ]
     }
+
+@router.post("/hardware")
+async def post_hardware_data(data: HardwareData):
+    """Receive real-time telemetry from physical Arduino sensors via the bridge"""
+    global CURRENT_HARDWARE_STATE
+    data.timestamp = time.time()
+    CURRENT_HARDWARE_STATE = data
+    return {"status": "success", "data": CURRENT_HARDWARE_STATE.dict()}
+
+@router.get("/hardware")
+async def get_hardware_data():
+    """Get the latest real-time telemetry from the Arduino"""
+    if CURRENT_HARDWARE_STATE is None:
+        return {"active": False, "data": None}
+    
+    # If the data is older than 10 seconds, consider the hardware disconnected
+    if time.time() - CURRENT_HARDWARE_STATE.timestamp > 10:
+        return {"active": False, "data": CURRENT_HARDWARE_STATE.dict(), "stale": True}
+        
+    return {"active": True, "data": CURRENT_HARDWARE_STATE.dict(), "stale": False}

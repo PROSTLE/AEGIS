@@ -1,0 +1,5 @@
+﻿58c3b1d HEAD@{0}: checkout: moving from copilot/vscode-mn8fvfxp-0ipl to main
+8271f72 HEAD@{1}: commit: Checkpoint from VS Code for cloud agent session
+58c3b1d HEAD@{2}: checkout: moving from main to copilot/vscode-mn8fvfxp-0ipl
+58c3b1d HEAD@{3}: Branch: renamed refs/heads/master to refs/heads/main
+58c3b1d HEAD@{5}: commit (initial): Initial commit: AEGIS City Digital Twin Command Center
