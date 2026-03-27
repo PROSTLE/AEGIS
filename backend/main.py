@@ -52,8 +52,18 @@ async def root():
         "description": "Startup Terrain Intelligence Platform for India"
     }
 
-# TODO: Import and include routers
-# from app.routes import heatmap, survival_predictor, logistics, workforce, location, activity, demand, matchmaking, advisor
+# Import and include routers
+from app.routes import heatmap, survival, logistics, workforce, location, activity, demand, matchmaking, advisor
+
+app.include_router(heatmap.router)
+app.include_router(survival.router)
+app.include_router(logistics.router)
+app.include_router(workforce.router)
+app.include_router(location.router)
+app.include_router(activity.router)
+app.include_router(demand.router)
+app.include_router(matchmaking.router)
+app.include_router(advisor.router)
 
 if __name__ == "__main__":
     import uvicorn
