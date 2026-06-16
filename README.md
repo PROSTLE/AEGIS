@@ -1,289 +1,127 @@
-# AEGIS - Startup Terrain Intelligence Platform for India
+# AEGIS — Startup Terrain Intelligence for India 🛰️
 
-## What is AEGIS?
+> Built at **Makeathon**. A decision-support platform that scores how ready an Indian city is for a given startup idea — blending curated ecosystem data, ML survival models, and an LLM advisor into a single **Launch Readiness Score**.
 
-AEGIS is an advanced, AI-powered startup terrain intelligence platform tailored for the Indian market. It empowers founders, investors, and urban planners to make data-driven decisions regarding startup location selection, operational viability, and market demand. By analyzing thousands of data points across geography, logistics, workforce, and real-time activity, AEGIS provides a dynamic launch readiness score and actionable insights for major Indian startup hubs.
-
-## Architecture & How It Works
-
-AEGIS follows a modern, decoupled client-server architecture:
-
--   **Frontend (React + Vite):** The user interface is built with React, utilizing D3.js and Recharts for highly interactive data visualizations. It handles state management via Zustand and communicates with the backend via REST APIs. The frontend is responsible for rendering the complex intelligence dashboards, maps, and predictive metrics in an intuitive, cybernetic-themed design.
--   **Backend (Python + FastAPI):** The intelligence engine of AEGIS. It processes incoming requests, computes real-time metrics, runs predictive algorithms, and integrates with the Google Gemini 1.5 Flash LLM for the AI Advisor feature. The backend performs the heavy lifting of spatial, predictive, and statistical analysis on-the-fly.
-
-**How it works:** When a user inputs their startup idea and selects a city, the frontend queries the specific FastAPI endpoints. The backend computes the metrics (Logistics, Demand, Workforce, Competition, Survival) dynamically, processes them through the AI Advisor for a cohesive narrative, and returns the actionable data to the frontend to populate the comprehensive dashboard.
-
-## Hardware Integration
-
-AEGIS also features a **Hardware Simulation System** designed to demonstrate real-world physical data integration. This component visualizes real-time metric streams as if they were coming from physical IoT sensors:
-- **Motion & Footfall Traffic**
-- **Proximity & Distance**
-- **Vibration & Industrial Activity**
-- **Environmental Conditions (e.g., Moisture)**
-
-These simulated sensor pipelines prove the platform's capability to ingest, process, and display live physical endpoint data streams. This is crucial for evaluating infrastructure, agritech, and industrial startup viability, extending AEGIS's intelligence beyond just digital statistics into physical world tracking.
-
-## Localhost Execution
-
-When running the platform locally for development, the components are hosted at the following addresses:
-
--   **Frontend UI:** `http://localhost:5173` (Vite Development Server)
--   **Backend API:** `http://localhost:8000` (FastAPI Uvicorn Server)
-    -   *Interactive API Docs (Swagger UI):* `http://localhost:8000/docs`
-## Project Structure
-
-```
-AEGIS/
-├── frontend/                 # React + D3.js + Recharts frontend
-│   ├── src/
-│   │   ├── components/       # All UI components
-│   │   │   ├── common/       # Common components (Layout, Navbar, Sidebar)
-│   │   │   ├── heatmap/      # Heatmap visualization components
-│   │   │   ├── survivalPredictor/
-│   │   │   ├── logistics/
-│   │   │   ├── workforce/
-│   │   │   ├── location/
-│   │   │   ├── activity/
-│   │   │   ├── demand/
-│   │   │   ├── matchmaking/
-│   │   │   └── advisor/
-│   │   ├── pages/            # Page components for each feature
-│   │   ├── hooks/            # Custom React hooks (useApi, etc.)
-│   │   ├── context/          # Global state management (Zustand)
-│   │   ├── services/         # API client and endpoints
-│   │   ├── utils/            # Constants, formatters, helpers
-│   │   ├── styles/           # CSS files
-│   │   ├── assets/           # Images, icons
-│   │   ├── App.jsx           # Main app component
-│   │   └── main.jsx          # Entry point
-│   ├── index.html
-│   ├── package.json
-│   ├── vite.config.js
-│   └── .env.example
-│
-├── backend/                  # Python FastAPI backend
-│   ├── main.py               # FastAPI application entry point
-│   ├── app/
-│   │   ├── routes/           # API endpoints for each feature
-│   │   │   ├── heatmap.py
-│   │   │   ├── survival.py
-│   │   │   ├── logistics.py
-│   │   │   ├── workforce.py
-│   │   │   ├── location.py
-│   │   │   ├── activity.py
-│   │   │   ├── demand.py
-│   │   │   ├── matchmaking.py
-│   │   │   └── advisor.py
-│   │   ├── models/           # SQLAlchemy database models
-│   │   ├── schemas/          # Pydantic request/response schemas
-│   │   └── services/         # Business logic services
-│   ├── data_pipeline/
-│   │   ├── scrapers/         # Data collection scrapers
-│   │   └── processors/       # Data processing and feature engineering
-│   ├── ml_models/
-│   │   ├── training/         # Model training code
-│   │   └── inference/        # Model inference code
-│   ├── config/
-│   │   └── settings.py       # Configuration management
-│   ├── requirements.txt
-│   ├── .env.example
-│   └── tests/                # Unit tests
-└── README.md
-```
-
-## Core Features
-
-### 1. **City Startup Heatmap**
-Interactive D3.js map showing ecosystem health (0-100) across Indian cities with sector filtering and trend indicators.
-- **Route**: `/heatmap`
-- **API**: `GET /api/heatmap/cities`
-
-### 2. **Startup Survival Predictor**
-XGBoost-based prediction of 3-year startup survival probability with explainability.
-- **Route**: `/survival`
-- **API**: `POST /api/survival/predict`
-- **Target AUC**: > 0.72
-
-### 3. **Supply Chain & Logistics Stress Test**
-Evaluates operational viability with delivery density, supplier proximity, port/highway access.
-- **Route**: `/logistics`
-- **API**: `GET /api/logistics/city/{city}`
-
-### 4. **Workforce Intelligence Engine**
-Maps startup types to workforce profiles, calculates density and salary indices.
-- **Route**: `/workforce`
-- **API**: `GET /api/workforce/city/{city}`
-
-### 5. **Location & Land Intelligence**
-Recommends optimal zones with cost, zoning, and proximity analysis.
-- **Route**: `/location`
-- **API**: `GET /api/location/city/{city}/zones`
-
-### 6. **Verified Startup Activity Counter**
-Cross-verifies startup counts and calculates crowding index.
-- **Route**: `/activity`
-- **API**: `GET /api/activity/city/{city}`
-
-### 7. **Demand Forecast & Lifespan Prediction**
-Uses Facebook Prophet and Kaplan-Meier survival analysis.
-- **Route**: `/demand`
-- **API**: `GET /api/demand/city/{city}/forecast`
-
-### 8. **Investor-Founder Matchmaking**
-Matches founders with 300-500 investors using cosine similarity.
-- **Route**: `/matchmaking`
-- **API**: `POST /api/matchmaking/match`
-
-### **AI Advisor** (Integrated RAG Pipeline)
-Combines all features with LLM for comprehensive Launch Readiness Score.
-- **Route**: `/advisor`
-- **API**: `POST /api/advisor/launch-readiness`
-
-## Tech Stack
-
-### Frontend
-- **React 19.2** + React Router for UI and navigation
-- **D3.js** for interactive heatmap visualization
-- **Recharts** for data visualization
-- **Tailwind CSS** for styling
-- **Lucide React** for icons
-- **Zustand** for state management
-- **Axios/Fetch** for API calls
-- **Vite** as build tool
-
-### Backend
-- **Python 3.11** + FastAPI for REST API
-- **PostgreSQL** for structured data storage
-- **Redis** for caching (24-hr TTL)
-- **SQLAlchemy** for ORM
-- **Pydantic** for validation
-- **XGBoost** for ML models
-- **scikit-learn** for data processing
-- **Facebook Prophet** for time series forecasting
-- **Gemini 1.5 Flash API** for LLM integration
-
-### Data Sources (Free & Open)
-- data.gov.in, MCA21, GST portal, DPIIT Startup India
-- OpenStreetMap, Numbeo API, Google Trends
-- AngelList India, Crunchbase Basic, Census of India
-- AISHE, NCVT MIS, Labour Bureau
-
-## Getting Started
-
-### Local Development Setup
-
-See **SETUP.md** for complete step-by-step instructions with Windows PowerShell/Git Bash examples.
-
-**In 2 terminals:**
-
-**Terminal 1 - Frontend**:
-```bash
-cd C:\Lang\AEGIS\frontend
-npm install
-npm run dev  # Starts at http://localhost:5173
-```
-
-**Terminal 2 - Backend**:
-```bash
-cd C:\Lang\AEGIS\backend
-python -m venv venv
-venv\Scripts\activate  # or `source venv/bin/activate` on Linux/Mac
-pip install -r requirements.txt
-cp .env.example .env       # Configure your API keys
-python main.py             # Starts at http://localhost:8000
-```
-
-### Deploy Online (Free)
-
-See **DEPLOYMENT.md** for deploying to Vercel + Supabase + Upstash (completely free tier)
-
-## API Documentation
-
-All endpoints are prefixed with `/api/`. See individual route files for detailed documentation:
-- `/api/heatmap/*` - Heatmap endpoints
-- `/api/survival/*` - Survival predictor
-- `/api/logistics/*` - Logistics analysis
-- `/api/workforce/*` - Workforce intelligence
-- `/api/location/*` - Location recommendations
-- `/api/activity/*` - Startup activity
-- `/api/demand/*` - Demand forecast
-- `/api/matchmaking/*` - Investor matching
-- `/api/advisor/*` - AI advisor with RAG
-
-## Key Metrics
-
-### Launch Readiness Score Components
-- Ecosystem Score (20%)
-- Startup Survival Predictor (20%)
-- Logistics Score (15%)
-- Workforce Score (15%)
-- Demand Forecast Score (15%)
-- Verified Activity/Crowding Index (10%)
-- Investor Availability Score (5%)
-
-## Environment Variables
-
-See `.env.example` files in both frontend and backend directories.
-
-Key required variables:
-- `GEMINI_API_KEY` - Google Gemini API key (free tier available)
-- `DATABASE_URL` - PostgreSQL connection string
-- `REDIS_URL` - Redis connection string
-- `VITE_API_BASE_URL` - Backend API URL (frontend)
-
-## Deployment
-
-Deploy AEGIS online for free using Vercel and cloud services:
-
-### Quick Deploy to Vercel
-1. **Frontend**: Deploy via Vercel (automatic on GitHub push)
-2. **Backend**: Deploy via Vercel/Railway/Render
-3. **Database**: Use Supabase (free PostgreSQL tier)
-4. **Cache**: Use Upstash (free Redis tier)
-
-**See DEPLOYMENT.md for complete step-by-step guide**
-
-### Local Development
-See SETUP.md for local development instructions
-
-### Estimated Cost (Monthly)
-- **Frontend (Vercel)**: Free
-- **Backend (Vercel/Railway)**: Free
-- **Database (Supabase)**: Free (500MB)
-- **Cache (Upstash)**: Free (10K commands/day)
-- **Total**: $0/month
-
-## Next Steps
-
-### Immediate Priorities
-1. **Deploy to Vercel** - See VERCEL_QUICKSTART.md (5 minutes to online!)
-2. **Connect APIs** - Implement all TODO endpoints in backend routes
-3. **Frontend Integration** - Update pages to call actual API endpoints
-4. **Data Pipeline** - Implement scrapers for all 10 data sources
-
-### Feature Development
-5. **ML Models** - Train survival predictor and logistics models
-6. **Testing** - Add unit and integration tests
-7. **UI Polish** - Refine components and add animations
-8. **Analytics** - Add tracking and monitoring
-
-### Long-term
-9. **Auto-Deployment** - Setup GitHub Actions for auto-deploy on push
-10. **Custom Domain** - Add branded domain name
-11. **Monitoring** - Setup error tracking and performance monitoring
-12. **Documentation** - API docs and user guides
-
-## Notes
-
-- All data sources are free to access (no licensing costs)
-- Gemini API free tier: 1,500 requests/day, 1M tokens/day
-- Uses only open-source and free tools
-- India-first focus with real government datasets
-
-## License
-
-To be determined
+![React](https://img.shields.io/badge/React_19-20232A?style=flat&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
+![Python](https://img.shields.io/badge/Python_3.11-3776AB?style=flat&logo=python&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikitlearn&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat&logo=googlegemini&logoColor=white)
 
 ---
 
-For questions or contributions, please refer to the project documentation.
+## What it does
+
+A founder enters a startup idea and picks an Indian city. AEGIS computes a set of independent intelligence signals — ecosystem health, survival odds, logistics, workforce, demand, crowding, investor availability — and fuses them into one **Launch Readiness Score**, then has an LLM narrate *why* in plain language.
+
+## Architecture
+
+Decoupled client/server: a React SPA talks to a FastAPI intelligence engine over REST.
+
+```
+┌─────────────────────────────┐         ┌──────────────────────────────────────┐
+│  Frontend (React 19 + Vite) │         │  Backend (FastAPI, ~3.4k LOC)         │
+│  • D3.js city heatmap       │  REST   │  /api/heatmap   /api/survival         │
+│  • Recharts dashboards      │ ──────► │  /api/logistics /api/workforce        │
+│  • Zustand state            │  JSON   │  /api/location  /api/activity         │
+│  • React Router (17 pages)  │ ◄────── │  /api/demand    /api/matchmaking      │
+│                             │         │  /api/advisor   + idea-analysis       │
+└─────────────────────────────┘         │  • GradientBoosting survival model    │
+                                        │  • Gemini LLM advisor (fallback chain)│
+                                        │  • Curated Indian-city datasets       │
+                                        └──────────────────────────────────────┘
+        Hardware demo: Arduino sketches (rover.ino, module.ino) stream
+        simulated IoT sensor metrics (footfall, proximity, vibration).
+```
+
+## Engineering highlights
+
+### Intelligence modules (FastAPI routers)
+Each signal is its own router under `backend/app/routes/`, so modules are independently testable and composable:
+
+| Module | What it computes |
+|---|---|
+| `heatmap` | City ecosystem-health scores (0–100) for the D3 map |
+| `survival` | 3-year startup survival probability + factor breakdown |
+| `logistics` | Supplier proximity, delivery density, port/highway access |
+| `workforce` | Talent density and salary indices by startup type |
+| `location` | Zone-level land/cost/zoning recommendations |
+| `activity` | Verified startup counts and a crowding index |
+| `demand` | Demand trajectory and lifespan signals |
+| `matchmaking` | Founder↔investor ranking via cosine similarity |
+| `advisor` / `ai_narrator` / `idea_analysis` | LLM synthesis into the readiness narrative |
+
+### ML survival model
+`survival.py` trains a scikit-learn **`GradientBoostingClassifier`** on a **domain-informed synthetic distribution**: features (team size, funding, city ecosystem score, crowding) are sampled and combined through a non-linear survival signal, then passed through a sigmoid to produce labels. This yields an explainable, reproducible model that demonstrates the full train→infer→explain loop without depending on hard-to-source real startup-outcome data. Per-factor scores (Ecosystem, Talent, Funding, Infra, Market) drive a radar breakdown in the UI.
+
+### LLM advisor with graceful degradation
+`ai_narrator.py` and `idea_analysis.py` call Google **Gemini** with a resilience chain:
+
+```
+gemini-2.0-flash-lite  →  gemini-2.5-flash  →  rule-based fallback
+   (fast / cheap)          (if rate-limited)     (if no API key)
+```
+
+So the product still returns sensible output when the API key is missing or quota is hit — a deliberate reliability choice for a demo that has to *always* work on stage.
+
+### Launch Readiness Score
+A transparent weighted blend of the module outputs:
+
+| Component | Weight |
+|---|---|
+| Ecosystem | 20% |
+| Survival predictor | 20% |
+| Logistics | 15% |
+| Workforce | 15% |
+| Demand forecast | 15% |
+| Activity / crowding | 10% |
+| Investor availability | 5% |
+
+## Tech Stack
+
+**Frontend** — React 19, React Router, D3.js (heatmap), Recharts, Zustand, Vite
+**Backend** — Python 3.11, FastAPI, Pydantic, scikit-learn, pandas/NumPy, `google-generativeai` (Gemini)
+**Hardware demo** — Arduino (`hardware/rover.ino`, `hardware/module.ino`) simulating IoT sensor streams
+**Tooling** — Docker / docker-compose, Vercel-ready frontend
+
+> The city intelligence is computed from **curated Indian-city datasets** (`backend/app/data_store.py`, `indian_cities_data.py`, `extended_data.py`) plus deterministic scoring. ML and LLM layers sit on top. It's a hackathon prototype — the data pipeline scaffolding (`data_pipeline/scrapers`, `processors`) is stubbed for future live ingestion.
+
+## Getting Started
+
+**Backend**
+```bash
+cd backend
+python -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env            # add GEMINI_API_KEY (optional — falls back to rule-based)
+python main.py                  # http://localhost:8000  (docs at /docs)
+```
+
+**Frontend**
+```bash
+cd frontend
+npm install
+npm run dev                     # http://localhost:5173
+```
+
+## Project layout
+
+```
+AEGIS/
+├── frontend/        # React 19 + Vite SPA (17 pages, D3/Recharts, Zustand)
+│   └── src/{pages,components,hooks,context,utils,styles}
+├── backend/         # FastAPI engine (~3.4k LOC)
+│   ├── main.py      # app entry, CORS, router registration
+│   ├── app/
+│   │   ├── routes/  # one router per intelligence module
+│   │   ├── data_store.py / indian_cities_data.py / extended_data.py
+│   │   └── models/ schemas/ services/
+│   └── config/settings.py
+├── hardware/        # Arduino sketches for the IoT sensor demo
+└── docker-compose.yml
+```
+
+## Disclaimer
+
+AEGIS is a hackathon prototype for decision-support and demonstration. Scores are model- and heuristic-driven and should not be the sole basis for real investment or location decisions.
